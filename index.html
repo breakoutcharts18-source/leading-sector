@@ -20,6 +20,10 @@
     --text: #e2e8f0;
     --muted: #64748b;
     --faint: #1a2332;
+    --leading: #10b981;
+    --weakening: #f59e0b;
+    --lagging: #f43f5e;
+    --improving: #3b82f6;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -29,8 +33,6 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-
-  /* GRID BACKGROUND */
   body::before {
     content: '';
     position: fixed;
@@ -42,10 +44,8 @@
     pointer-events: none;
     z-index: 0;
   }
-
   .container { max-width: 1440px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
 
-  /* HEADER */
   header {
     border-bottom: 1px solid var(--border);
     padding: 18px 0;
@@ -55,326 +55,188 @@
     backdrop-filter: blur(12px);
     z-index: 100;
   }
-  .header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .logo-icon {
-    width: 34px; height: 34px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    font-weight: bold;
-    color: #000;
-  }
-  .logo-text {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-  }
-  .logo-sub {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .header-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .period-btn {
-    padding: 6px 14px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    border-radius: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; color: #000; }
+  .logo-text { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; text-transform: uppercase; }
+  .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .period-btn { padding: 6px 14px; background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; transition: all 0.15s; }
   .period-btn:hover { border-color: var(--accent); color: var(--accent); }
   .period-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
-  .refresh-btn {
-    padding: 6px 16px;
-    background: var(--faint);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 6px;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    transition: all 0.15s;
-  }
+  .refresh-btn { padding: 6px 16px; background: var(--faint); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: 'Space Grotesk', sans-serif; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
   .refresh-btn:hover { border-color: var(--accent); }
   .refresh-btn.spinning svg { animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .last-updated { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
 
-  .last-updated {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  /* MAIN LAYOUT */
   main { padding: 28px 0 48px; }
 
-  /* NIFTY BAR */
-  .nifty-bar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  .nifty-label {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .nifty-val {
-    font-size: 22px;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--text);
-  }
-  .nifty-chg {
-    font-size: 13px;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
-  }
+  .nifty-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+  .nifty-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; text-transform: uppercase; }
+  .nifty-val { font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text); }
+  .nifty-chg { font-size: 13px; font-family: 'JetBrains Mono', monospace; font-weight: 600; padding: 3px 8px; border-radius: 4px; }
   .nifty-chg.up { background: rgba(16,185,129,0.15); color: var(--success); }
   .nifty-chg.down { background: rgba(244,63,94,0.15); color: var(--danger); }
-
   .breadth-pills { display: flex; gap: 10px; margin-left: auto; flex-wrap: wrap; }
-  .pill {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 600;
-  }
+  .pill { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
   .pill.bull { background: rgba(16,185,129,0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.25); }
   .pill.bear { background: rgba(244,63,94,0.12); color: var(--danger); border: 1px solid rgba(244,63,94,0.25); }
   .pill.neutral { background: rgba(245,158,11,0.12); color: var(--warning); border: 1px solid rgba(245,158,11,0.25); }
 
-  /* GRID */
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
   .grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 24px; }
   @media(max-width: 1024px) { .grid-3 { grid-template-columns: 1fr 1fr; } .grid-2 { grid-template-columns: 1fr; } }
   @media(max-width: 600px) { .grid-3 { grid-template-columns: 1fr; } }
 
-  /* CARDS */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  .card-header {
-    padding: 16px 20px 12px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .card-title {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-  }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .card-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
   .card-body { padding: 16px 20px; }
 
-  /* SECTOR TILES */
-  .sectors-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .sector-tile {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    cursor: pointer;
-    transition: all 0.18s;
-    position: relative;
-    overflow: hidden;
-  }
-  .sector-tile::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--tile-color, var(--border));
-    transition: width 0.2s;
-  }
+  .sectors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .sector-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all 0.18s; position: relative; overflow: hidden; }
+  .sector-tile::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--tile-color, var(--border)); transition: width 0.2s; }
   .sector-tile:hover { border-color: var(--tile-color, var(--border)); transform: translateY(-1px); }
   .sector-tile:hover::before { width: 4px; }
   .sector-tile.selected { border-color: var(--tile-color, var(--accent)); background: var(--surface2); }
   .tile-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
   .tile-symbol { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
-  .tile-change {
-    font-size: 18px;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-  }
+  .tile-change { font-size: 18px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
   .tile-change.up { color: var(--success); }
   .tile-change.down { color: var(--danger); }
   .tile-price { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
-  .tile-signal {
-    position: absolute; top: 12px; right: 12px;
-    font-size: 10px; font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.5px;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
+  .tile-signal { position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; padding: 2px 6px; border-radius: 4px; }
   .signal-strong-buy { background: rgba(16,185,129,0.2); color: #10b981; }
   .signal-buy { background: rgba(0,212,170,0.15); color: #00d4aa; }
   .signal-neutral { background: rgba(100,116,139,0.2); color: #94a3b8; }
   .signal-sell { background: rgba(244,63,94,0.15); color: #f43f5e; }
   .signal-strong-sell { background: rgba(244,63,94,0.25); color: #fb7185; }
 
-  /* CHART CONTAINERS */
   #radarChart, #barChart, #lineChart, #heatmapChart { min-height: 300px; }
 
-  /* ROTATION TABLE */
-  .rotation-table { width: 100%; border-collapse: collapse; }
-  .rotation-table th {
-    font-size: 10px;
+  /* ── RRG STYLES ── */
+  .rrg-wrapper {
+    position: relative;
+    margin-bottom: 24px;
+  }
+  .rrg-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .rrg-card .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .rrg-header-right {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .rrg-legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+  }
+  .rrg-legend-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--muted);
+  }
+  .rrg-legend-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .rrg-canvas-wrap {
+    padding: 16px 20px 20px;
+    position: relative;
+  }
+  #rrgCanvas {
+    width: 100%;
+    display: block;
+    cursor: crosshair;
+  }
+  .rrg-tooltip {
+    position: absolute;
+    background: rgba(13,17,23,0.95);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
     font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 10px 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-    font-weight: 500;
+    font-size: 11px;
+    color: var(--text);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+    min-width: 160px;
+    backdrop-filter: blur(8px);
   }
-  .rotation-table td {
-    padding: 10px 12px;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(30,42,58,0.5);
+  .rrg-tooltip.visible { opacity: 1; }
+  .rrg-tooltip-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif; }
+  .rrg-tooltip-row { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 2px; color: var(--muted); }
+  .rrg-tooltip-row span:last-child { color: var(--text); font-weight: 600; }
+  .rrg-quadrant-badges {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 20px 20px;
   }
+  .rrg-q-badge {
+    border-radius: 8px;
+    padding: 12px 14px;
+    border: 1px solid;
+  }
+  .rrg-q-badge.leading   { background: rgba(16,185,129,0.07); border-color: rgba(16,185,129,0.2); }
+  .rrg-q-badge.weakening { background: rgba(245,158,11,0.07); border-color: rgba(245,158,11,0.2); }
+  .rrg-q-badge.lagging   { background: rgba(244,63,94,0.07);  border-color: rgba(244,63,94,0.2); }
+  .rrg-q-badge.improving { background: rgba(59,130,246,0.07); border-color: rgba(59,130,246,0.2); }
+  .rrg-q-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace; margin-bottom: 6px;
+  }
+  .rrg-q-badge.leading   .rrg-q-label { color: var(--leading); }
+  .rrg-q-badge.weakening .rrg-q-label { color: var(--weakening); }
+  .rrg-q-badge.lagging   .rrg-q-label { color: var(--lagging); }
+  .rrg-q-badge.improving .rrg-q-label { color: var(--improving); }
+  .rrg-q-sectors {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .rrg-sector-chip {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    padding: 2px 7px; border-radius: 4px; background: rgba(255,255,255,0.05);
+    color: var(--text);
+  }
+
+  .rotation-table { width: 100%; border-collapse: collapse; }
+  .rotation-table th { font-size: 10px; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 500; }
+  .rotation-table td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid rgba(30,42,58,0.5); }
   .rotation-table tr:hover td { background: var(--surface2); }
   .rotation-table .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
-  .rank-badge {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-  }
+  .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
   .rank-1 { background: rgba(245,158,11,0.2); color: #f59e0b; }
   .rank-2 { background: rgba(203,213,225,0.1); color: #cbd5e1; }
   .rank-3 { background: rgba(180,120,80,0.15); color: #cd7c3a; }
   .rank-n { background: var(--faint); color: var(--muted); }
-
   .trend-bar-wrap { width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
   .trend-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
 
-  /* INSIGHT BOX */
-  .insight-box {
-    background: linear-gradient(135deg, rgba(0,212,170,0.06), rgba(59,130,246,0.04));
-    border: 1px solid rgba(0,212,170,0.2);
-    border-radius: 10px;
-    padding: 16px 20px;
-    margin-bottom: 24px;
-  }
-  .insight-label {
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 8px;
-    font-weight: 600;
-  }
+  .insight-box { background: linear-gradient(135deg, rgba(0,212,170,0.06), rgba(59,130,246,0.04)); border: 1px solid rgba(0,212,170,0.2); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+  .insight-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; font-weight: 600; }
   .insight-text { font-size: 14px; line-height: 1.6; color: var(--text); }
   .insight-text strong { color: var(--accent); }
 
-  /* MACRO PILLS */
   .macro-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-  .macro-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    flex: 1; min-width: 100px;
-  }
+  .macro-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; flex: 1; min-width: 100px; }
   .macro-item-label { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
   .macro-item-val { font-size: 16px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
   .macro-item-chg { font-size: 11px; font-family: 'JetBrains Mono', monospace; }
   .up-text { color: var(--success); }
   .down-text { color: var(--danger); }
 
-  /* LOADING OVERLAY */
-  .loading-overlay {
-    position: fixed; inset: 0;
-    background: rgba(6,9,16,0.85);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    z-index: 999;
-    backdrop-filter: blur(4px);
-    transition: opacity 0.3s ease;
-  }
+  .loading-overlay { position: fixed; inset: 0; background: rgba(6,9,16,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; backdrop-filter: blur(4px); transition: opacity 0.3s ease; }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .loader-ring {
-    width: 48px; height: 48px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 16px;
-  }
-  .loader-text {
-    font-size: 13px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 1px;
-  }
-  .loader-sub {
-    font-size: 11px;
-    color: rgba(100,116,139,0.6);
-    font-family: 'JetBrains Mono', monospace;
-    margin-top: 6px;
-  }
+  .loader-ring { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+  .loader-text { font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+  .loader-sub { font-size: 11px; color: rgba(100,116,139,0.6); font-family: 'JetBrains Mono', monospace; margin-top: 6px; }
 
-  /* FOOTER */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 20px 0;
-    margin-top: 20px;
-  }
-  .footer-inner {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; flex-wrap: wrap;
-  }
+  footer { border-top: 1px solid var(--border); padding: 20px 0; margin-top: 20px; }
+  .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .footer-text { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
   .footer-disclaimer { font-size: 11px; color: rgba(100,116,139,0.5); max-width: 500px; line-height: 1.5; }
 </style>
@@ -474,8 +336,57 @@
       </div>
     </div>
 
-    <div class="sectors-grid" id="sectorTiles">
+    <div class="sectors-grid" id="sectorTiles"></div>
+
+    <!-- ══════════════════════════════════════════
+         RELATIVE ROTATION GRAPH (RRG)
+    ═══════════════════════════════════════════ -->
+    <div class="rrg-wrapper">
+      <div class="rrg-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Relative Rotation Graph (RRG)</div>
+          </div>
+          <div class="rrg-header-right">
+            <div class="rrg-legend">
+              <div class="rrg-legend-item"><div class="rrg-legend-dot" style="background:#10b981"></div>Leading</div>
+              <div class="rrg-legend-item"><div class="rrg-legend-dot" style="background:#f59e0b"></div>Weakening</div>
+              <div class="rrg-legend-item"><div class="rrg-legend-dot" style="background:#f43f5e"></div>Lagging</div>
+              <div class="rrg-legend-item"><div class="rrg-legend-dot" style="background:#3b82f6"></div>Improving</div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;white-space:nowrap">vs NIFTY 50</div>
+          </div>
+        </div>
+        <div class="rrg-canvas-wrap">
+          <canvas id="rrgCanvas" height="520"></canvas>
+          <div class="rrg-tooltip" id="rrgTooltip">
+            <div class="rrg-tooltip-name" id="ttName">—</div>
+            <div class="rrg-tooltip-row"><span>RS-Ratio</span><span id="ttRatio">—</span></div>
+            <div class="rrg-tooltip-row"><span>RS-Momentum</span><span id="ttMomentum">—</span></div>
+            <div class="rrg-tooltip-row"><span>Change</span><span id="ttChange">—</span></div>
+            <div class="rrg-tooltip-row"><span>Quadrant</span><span id="ttQuadrant">—</span></div>
+          </div>
+        </div>
+        <div class="rrg-quadrant-badges" id="rrgQuadrants">
+          <div class="rrg-q-badge leading">
+            <div class="rrg-q-label">▲ Leading</div>
+            <div class="rrg-q-sectors" id="qLeading"><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace">Loading...</span></div>
+          </div>
+          <div class="rrg-q-badge weakening">
+            <div class="rrg-q-label">▷ Weakening</div>
+            <div class="rrg-q-sectors" id="qWeakening"></div>
+          </div>
+          <div class="rrg-q-badge lagging">
+            <div class="rrg-q-label">▼ Lagging</div>
+            <div class="rrg-q-sectors" id="qLagging"></div>
+          </div>
+          <div class="rrg-q-badge improving">
+            <div class="rrg-q-label">◁ Improving</div>
+            <div class="rrg-q-sectors" id="qImproving"></div>
+          </div>
+        </div>
       </div>
+    </div>
 
     <div class="grid-2">
       <div class="card">
@@ -554,18 +465,18 @@
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────────────
 const SECTORS = [
-  { name: 'Banking',       sym: '^NSEBANK',   ticker: '%5ENSEBANK',   color: '#3b82f6', emoji: '🏦' },
-  { name: 'IT',            sym: 'NIFTYIT',    ticker: '%5ECNXIT',     color: '#8b5cf6', emoji: '💻' },
-  { name: 'Auto',          sym: 'NIFTYAUTO',  ticker: '%5ECNXAUTO',   color: '#f59e0b', emoji: '🚗' },
-  { name: 'Pharma',        sym: 'NIIFTYPHARMA',ticker: '%5ECNXPHARMA', color: '#10b981', emoji: '💊' },
-  { name: 'FMCG',          sym: 'NIIFTYFMCG', ticker: '%5ECNXFMCG',   color: '#ec4899', emoji: '🛒' },
-  { name: 'Metal',         sym: 'NIFTYMETAL', ticker: '%5ECNXMETAL',  color: '#64748b', emoji: '⚙️' },
-  { name: 'Realty',        sym: 'NIFTYREALTY',ticker: '%5ECNXREALTY', color: '#f97316', emoji: '🏗️' },
-  { name: 'Energy',        sym: 'NIFTYENERGY',ticker: '%5ECNXENERGY', color: '#eab308', emoji: '⚡' },
-  { name: 'Infra',         sym: 'NIFTYINFRA', ticker: '%5ECNXINFRA',  color: '#06b6d4', emoji: '🏛️' },
-  { name: 'Media',         sym: 'NIIFTYMEDIA',ticker: '%5ECNXMEDIA',  color: '#a855f7', emoji: '📺' },
-  { name: 'Fin Services',  sym: 'NIFTYFIN',   ticker: '%5EFINSERVICE',color: '#00d4aa', emoji: '💰' },
-  { name: 'Consumer Dur.', sym: 'NIFTYCD',    ticker: '%5ECNXCONSUM', color: '#f43f5e', emoji: '🛍️' },
+  { name: 'Banking',       sym: '^NSEBANK',    ticker: '%5ENSEBANK',    color: '#3b82f6', emoji: '🏦' },
+  { name: 'IT',            sym: 'NIFTYIT',     ticker: '%5ECNXIT',      color: '#8b5cf6', emoji: '💻' },
+  { name: 'Auto',          sym: 'NIFTYAUTO',   ticker: '%5ECNXAUTO',    color: '#f59e0b', emoji: '🚗' },
+  { name: 'Pharma',        sym: 'NIIFTYPHARMA',ticker: '%5ECNXPHARMA',  color: '#10b981', emoji: '💊' },
+  { name: 'FMCG',          sym: 'NIIFTYFMCG',  ticker: '%5ECNXFMCG',    color: '#ec4899', emoji: '🛒' },
+  { name: 'Metal',         sym: 'NIFTYMETAL',  ticker: '%5ECNXMETAL',   color: '#64748b', emoji: '⚙️' },
+  { name: 'Realty',        sym: 'NIFTYREALTY', ticker: '%5ECNXREALTY',  color: '#f97316', emoji: '🏗️' },
+  { name: 'Energy',        sym: 'NIFTYENERGY', ticker: '%5ECNXENERGY',  color: '#eab308', emoji: '⚡' },
+  { name: 'Infra',         sym: 'NIFTYINFRA',  ticker: '%5ECNXINFRA',   color: '#06b6d4', emoji: '🏛️' },
+  { name: 'Media',         sym: 'NIIFTYMEDIA', ticker: '%5ECNXMEDIA',   color: '#a855f7', emoji: '📺' },
+  { name: 'Fin Services',  sym: 'NIFTYFIN',    ticker: '%5EFINSERVICE', color: '#00d4aa', emoji: '💰' },
+  { name: 'Consumer Dur.', sym: 'NIFTYCD',     ticker: '%5ECNXCONSUM',  color: '#f43f5e', emoji: '🛍️' },
 ];
 
 const INDICES = [
@@ -573,7 +484,6 @@ const INDICES = [
   { id:'sensexVal', chg:'sensexChg', sym:'%5EBSESN' },
   { id:'bankVal',   chg:'bankChg',   sym:'%5ENSEBANK' },
 ];
-
 const MACRO = [
   { id:'usdInr',  chg:'usdInrChg', sym:'USDINR=X' },
   { id:'vixVal',  chg:'vixChg',    sym:'%5EINDIAVIX' },
@@ -585,8 +495,9 @@ const MACRO = [
 let currentPeriod = '1d';
 let sectorData = [];
 let chartInstances = {};
+let rrgPoints = [];
 
-// ─── DATA ROUTING ─────────────────────────────────────────────────────
+// ─── PROXIES ──────────────────────────────────────────────────────────
 const PROXIES = [
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -620,7 +531,6 @@ async function fetchQuoteData(symbol) {
         price: meta.regularMarketPrice || meta.previousClose,
         prevClose: meta.chartPreviousClose || meta.previousClose,
         change: ((meta.regularMarketPrice - (meta.chartPreviousClose || meta.previousClose)) / (meta.chartPreviousClose || meta.previousClose) * 100),
-        name: meta.longName || meta.shortName || symbol,
       };
     } catch(e) { continue; }
   }
@@ -635,7 +545,6 @@ function getSignal(change, rs) {
   if (change > -2.5) return { label: 'SELL', cls: 'signal-sell' };
   return { label: 'STRONG SELL', cls: 'signal-strong-sell' };
 }
-
 function colorForChange(c) {
   if (c > 2) return '#10b981';
   if (c > 0.5) return '#00d4aa';
@@ -643,13 +552,303 @@ function colorForChange(c) {
   if (c > -2) return '#f97316';
   return '#f43f5e';
 }
-
 function fmt(n, d=2) { return (n == null || isNaN(n)) ? '—' : n.toFixed(d); }
 function fmtPrice(n) {
   if (!n) return '—';
   if (n > 10000) return n.toLocaleString('en-IN', {maximumFractionDigits:0});
   if (n > 100) return n.toLocaleString('en-IN', {maximumFractionDigits:1});
   return n.toFixed(2);
+}
+
+// ─── RRG ENGINE ───────────────────────────────────────────────────────
+// JdK RS-Ratio and RS-Momentum computed from relative performance
+// RS-Ratio: smoothed ratio of sector/benchmark performance (x-axis)
+//   >100 = outperforming, <100 = underperforming
+// RS-Momentum: rate of change of RS-Ratio (y-axis)
+//   >100 = gaining momentum, <100 = losing momentum
+
+function computeRRGPoints(allHistData, niftyCloses) {
+  const points = [];
+  if (!niftyCloses || niftyCloses.length < 2) return points;
+
+  SECTORS.forEach((sector, i) => {
+    const hist = allHistData[i];
+    if (!hist || !hist.closes || hist.closes.length < 2) {
+      points.push({ sector, rsRatio: 100, rsMomentum: 100, change: sectorData[i]?.change ?? 0, trail: [] });
+      return;
+    }
+
+    const sCloses = hist.closes;
+    const n = Math.min(sCloses.length, niftyCloses.length);
+
+    // Build relative strength series (sector / nifty, rebased)
+    const rsSeries = [];
+    for (let k = 0; k < n; k++) {
+      if (sCloses[k] != null && niftyCloses[k] != null && niftyCloses[k] !== 0) {
+        rsSeries.push((sCloses[k] / sCloses[0]) / (niftyCloses[k] / niftyCloses[0]) * 100);
+      } else {
+        rsSeries.push(null);
+      }
+    }
+
+    // Smooth RS with a 10-period EMA (JdK-style)
+    const smoothRS = ema(rsSeries.filter(v => v !== null), 10);
+
+    // RS-Ratio: normalize around 100 using z-score style
+    const meanRS = smoothRS.reduce((a,b) => a+b,0) / smoothRS.length;
+    const stdRS  = Math.sqrt(smoothRS.reduce((a,b) => a + (b-meanRS)**2, 0) / smoothRS.length) || 1;
+    const rsRatio = ((smoothRS[smoothRS.length-1] - meanRS) / stdRS) * 10 + 100;
+
+    // RS-Momentum: EMA of RS-Ratio changes
+    const rsMomRaw = ema(smoothRS.map((v,k) => k===0 ? 0 : v - smoothRS[k-1]), 5);
+    const meanMom  = rsMomRaw.reduce((a,b) => a+b,0) / rsMomRaw.length;
+    const stdMom   = Math.sqrt(rsMomRaw.reduce((a,b) => a + (b-meanMom)**2, 0) / rsMomRaw.length) || 1;
+    const rsMomentum = ((rsMomRaw[rsMomRaw.length-1] - meanMom) / stdMom) * 10 + 100;
+
+    // Build trail: last 5 positions for tail rendering
+    const trailLen = Math.min(5, smoothRS.length);
+    const trail = [];
+    for (let t = trailLen; t >= 1; t--) {
+      const idx = smoothRS.length - t;
+      if (idx >= 0) {
+        const rr = ((smoothRS[idx] - meanRS) / stdRS) * 10 + 100;
+        const k  = Math.max(0, idx - 1);
+        const rmRaw = rsMomRaw[k] ?? 0;
+        const rm = ((rmRaw - meanMom) / stdMom) * 10 + 100;
+        trail.push({ rsRatio: rr, rsMomentum: rm });
+      }
+    }
+
+    points.push({
+      sector, i,
+      rsRatio: clamp(rsRatio, 85, 115),
+      rsMomentum: clamp(rsMomentum, 85, 115),
+      change: sectorData[i]?.change ?? 0,
+      trail: trail.map(t => ({ rsRatio: clamp(t.rsRatio,85,115), rsMomentum: clamp(t.rsMomentum,85,115) }))
+    });
+  });
+  return points;
+}
+
+function ema(data, period) {
+  const k = 2 / (period + 1);
+  const result = [];
+  let prev = data[0] ?? 0;
+  data.forEach(v => {
+    const val = v ?? prev;
+    prev = val * k + prev * (1 - k);
+    result.push(prev);
+  });
+  return result;
+}
+function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }
+
+function quadrant(rsRatio, rsMomentum) {
+  if (rsRatio >= 100 && rsMomentum >= 100) return 'leading';
+  if (rsRatio >= 100 && rsMomentum < 100)  return 'weakening';
+  if (rsRatio < 100  && rsMomentum < 100)  return 'lagging';
+  return 'improving';
+}
+const QUADRANT_COLOR = { leading:'#10b981', weakening:'#f59e0b', lagging:'#f43f5e', improving:'#3b82f6' };
+const QUADRANT_LABEL = { leading:'Leading', weakening:'Weakening', lagging:'Lagging', improving:'Improving' };
+
+// ─── RRG CANVAS RENDERER ──────────────────────────────────────────────
+let rrgHitTargets = [];
+
+function drawRRG(points) {
+  const canvas = document.getElementById('rrgCanvas');
+  const wrap   = canvas.parentElement;
+  const dpr    = window.devicePixelRatio || 1;
+  const W      = wrap.clientWidth - 40; // account for padding
+  const H      = 520;
+
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const PAD = { top: 24, right: 24, bottom: 40, left: 52 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top  - PAD.bottom;
+
+  // Value range: 88–112 visible
+  const VMIN = 88, VMAX = 112;
+  function toX(rsRatio)    { return PAD.left + (rsRatio - VMIN) / (VMAX - VMIN) * cW; }
+  function toY(rsMomentum) { return PAD.top  + (VMAX - rsMomentum) / (VMAX - VMIN) * cH; }
+
+  const cx = toX(100), cy = toY(100);
+
+  // ── Background quadrant fills
+  const quads = [
+    { x: cx,     y: PAD.top, w: cW - (cx-PAD.left), h: cy-PAD.top,          color: 'rgba(16,185,129,0.05)',  label: 'LEADING',   lx: cx+10,  ly: PAD.top+14 },
+    { x: cx,     y: cy,      w: cW - (cx-PAD.left), h: cH-(cy-PAD.top),     color: 'rgba(245,158,11,0.05)', label: 'WEAKENING', lx: cx+10,  ly: cy+14 },
+    { x: PAD.left,y: cy,     w: cx-PAD.left,        h: cH-(cy-PAD.top),     color: 'rgba(244,63,94,0.05)',  label: 'LAGGING',   lx: PAD.left+8, ly: cy+14 },
+    { x: PAD.left,y: PAD.top,w: cx-PAD.left,        h: cy-PAD.top,          color: 'rgba(59,130,246,0.05)', label: 'IMPROVING', lx: PAD.left+8, ly: PAD.top+14 },
+  ];
+  quads.forEach(q => {
+    ctx.fillStyle = q.color;
+    ctx.fillRect(q.x, q.y, q.w, q.h);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.font = `700 10px "JetBrains Mono", monospace`;
+    ctx.letterSpacing = '1.2px';
+    ctx.fillText(q.label, q.lx, q.ly);
+  });
+
+  // ── Grid lines
+  ctx.strokeStyle = '#1e2a3a';
+  ctx.lineWidth = 1;
+  for (let v = 90; v <= 110; v += 2) {
+    ctx.globalAlpha = v % 10 === 0 ? 0.8 : 0.35;
+    ctx.beginPath(); ctx.moveTo(toX(v), PAD.top); ctx.lineTo(toX(v), PAD.top+cH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD.left, toY(v)); ctx.lineTo(PAD.left+cW, toY(v)); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // ── Axis lines (center cross)
+  ctx.strokeStyle = '#2d3f55';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx, PAD.top); ctx.lineTo(cx, PAD.top+cH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD.left, cy); ctx.lineTo(PAD.left+cW, cy); ctx.stroke();
+
+  // ── Axis labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('RS-RATIO (Relative Strength)', PAD.left + cW/2, H - 8);
+  ctx.save();
+  ctx.translate(14, PAD.top + cH/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('RS-MOMENTUM', 0, 0);
+  ctx.restore();
+
+  // Tick labels
+  ctx.textAlign = 'center';
+  for (let v = 90; v <= 110; v += 5) {
+    ctx.fillStyle = '#475569';
+    ctx.font = '9px "JetBrains Mono", monospace';
+    ctx.fillText(v, toX(v), PAD.top+cH+14);
+    ctx.fillText(v, PAD.left-10, toY(v)+3);
+  }
+
+  // ── Draw sectors
+  rrgHitTargets = [];
+  points.forEach(pt => {
+    const x = toX(pt.rsRatio);
+    const y = toY(pt.rsMomentum);
+    const col = QUADRANT_COLOR[quadrant(pt.rsRatio, pt.rsMomentum)];
+
+    // Trail (tail)
+    if (pt.trail && pt.trail.length > 1) {
+      ctx.beginPath();
+      ctx.moveTo(toX(pt.trail[0].rsRatio), toY(pt.trail[0].rsMomentum));
+      pt.trail.forEach(t => ctx.lineTo(toX(t.rsRatio), toY(t.rsMomentum)));
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = col + '55';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Arrowhead on last trail segment
+      const prev = pt.trail[pt.trail.length-1];
+      const px = toX(prev.rsRatio), py = toY(prev.rsMomentum);
+      const angle = Math.atan2(y - py, x - px);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.fillStyle = col + '88';
+      ctx.beginPath();
+      ctx.moveTo(-8, -3); ctx.lineTo(0, 0); ctx.lineTo(-8, 3);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Dot shadow
+    ctx.shadowColor = col;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(x, y, 7, 0, Math.PI*2);
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Dot ring
+    ctx.beginPath();
+    ctx.arc(x, y, 7, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = '600 10.5px "Space Grotesk", sans-serif';
+    ctx.textAlign = 'left';
+    const label = pt.sector.name.length > 8 ? pt.sector.name.slice(0,7)+'…' : pt.sector.name;
+    const lx = x + 10, ly = y - 2;
+    // Background pill for label
+    const tw = ctx.measureText(label).width;
+    ctx.fillStyle = 'rgba(13,17,23,0.72)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(lx-2, ly-10, tw+8, 14, 3) : ctx.rect(lx-2, ly-10, tw+8, 14);
+    ctx.fill();
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillText(label, lx+2, ly);
+
+    rrgHitTargets.push({ x, y, pt, r: 12 });
+  });
+}
+
+function updateRRGQuadrants(points) {
+  const q = { leading: [], weakening: [], lagging: [], improving: [] };
+  points.forEach(pt => q[quadrant(pt.rsRatio, pt.rsMomentum)].push(pt.sector));
+  ['leading','weakening','lagging','improving'].forEach(name => {
+    const el = document.getElementById('q' + name.charAt(0).toUpperCase() + name.slice(1));
+    if (!el) return;
+    if (q[name].length === 0) {
+      el.innerHTML = '<span style="color:var(--muted);font-size:10px;font-family:\'JetBrains Mono\',monospace">None</span>';
+    } else {
+      el.innerHTML = q[name].map(s => `<span class="rrg-sector-chip">${s.emoji} ${s.name}</span>`).join('');
+    }
+  });
+}
+
+// ─── RRG TOOLTIP ──────────────────────────────────────────────────────
+function initRRGInteraction() {
+  const canvas  = document.getElementById('rrgCanvas');
+  const tooltip = document.getElementById('rrgTooltip');
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    let hit = null;
+    rrgHitTargets.forEach(t => {
+      const dist = Math.sqrt((mx-t.x)**2 + (my-t.y)**2);
+      if (dist <= t.r) hit = t.pt;
+    });
+    if (hit) {
+      document.getElementById('ttName').textContent      = hit.sector.emoji + ' ' + hit.sector.name;
+      document.getElementById('ttRatio').textContent     = hit.rsRatio.toFixed(2);
+      document.getElementById('ttMomentum').textContent  = hit.rsMomentum.toFixed(2);
+      const chg = hit.change;
+      document.getElementById('ttChange').textContent    = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+      document.getElementById('ttChange').style.color    = chg >= 0 ? '#10b981' : '#f43f5e';
+      const q = quadrant(hit.rsRatio, hit.rsMomentum);
+      document.getElementById('ttQuadrant').textContent  = QUADRANT_LABEL[q];
+      document.getElementById('ttQuadrant').style.color  = QUADRANT_COLOR[q];
+      const tipX = Math.min(mx + 16, canvas.offsetWidth - 180);
+      const tipY = Math.min(my + 16, canvas.offsetHeight - 110);
+      tooltip.style.left = tipX + 'px';
+      tooltip.style.top  = tipY + 'px';
+      tooltip.classList.add('visible');
+    } else {
+      tooltip.classList.remove('visible');
+    }
+  });
+  canvas.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
 }
 
 // ─── UI RENDERING ──────────────────────────────────────────────────────
@@ -664,7 +863,6 @@ function renderTiles() {
     const signal = chg != null ? getSignal(chg, rs) : { label: '...', cls: 'signal-neutral' };
     const chgClass = chg == null ? '' : (chg >= 0 ? 'up' : 'down');
     const chgStr = chg != null ? (chg >= 0 ? '+' : '') + fmt(chg) + '%' : '—';
-
     const tile = document.createElement('div');
     tile.className = 'sector-tile';
     tile.style.setProperty('--tile-color', s.color);
@@ -710,26 +908,21 @@ function renderLeaderboard() {
 function generateInsight() {
   const valid = sectorData.filter(d => d.change != null);
   if (!valid.length) return;
-
   const sorted = [...valid].map((d,i) => ({...d, idx:i})).sort((a,b) => b.change - a.change);
   const top3 = sorted.slice(0,3).map(d => SECTORS[d.idx].name);
-  const bot3 = sorted.slice(-3).map(d => SECTORS[d.idx].name);
   const avgChange = valid.reduce((s,d) => s + d.change, 0) / valid.length;
   const bullCount = valid.filter(d => d.change > 0.5).length;
   const bearCount = valid.filter(d => d.change < -0.5).length;
-
   let trend = avgChange > 1 ? 'broad-based rally' : avgChange < -1 ? 'broad-based selloff' : 'mixed session';
   let insightHtml = `Market structure indicating a <strong>${trend}</strong>. `;
   insightHtml += `Momentum leaders: <strong>${top3.join(', ')}</strong>. `;
-  
   if (bullCount > bearCount * 2) insightHtml += `<strong>${bullCount}/${valid.length}</strong> sectors in positive territory — watch for primary breakout setups and volatility contraction (VCP) patterns in leading spaces.`;
   else if (bearCount > bullCount * 2) insightHtml += `<strong>${bearCount}/${valid.length}</strong> sectors under pressure — capital moving to defensive positioning. Avoid premature breakout entries.`;
   else insightHtml += `Rotation is highly selective. Screen individual charts for relative strength rather than relying on broad indices.`;
-
   document.getElementById('insightText').innerHTML = insightHtml;
-  document.getElementById('pillBull').textContent = `↑ ${bullCount} Leading`;
+  document.getElementById('pillBull').textContent  = `↑ ${bullCount} Leading`;
   document.getElementById('pillNeutral').textContent = `→ ${valid.length - bullCount - bearCount} Neutral`;
-  document.getElementById('pillBear').textContent = `↓ ${bearCount} Lagging`;
+  document.getElementById('pillBear').textContent  = `↓ ${bearCount} Lagging`;
 }
 
 // ─── CHART ENGINES ────────────────────────────────────────────────────
@@ -745,8 +938,7 @@ function initCharts() {
     chart: { ...darkOpts.chart, type: 'bar', height: 340, toolbar: { show: false }, animations: { enabled: true, speed: 500 } },
     series: [{ name: 'Change %', data: [] }],
     plotOptions: { bar: { horizontal: true, borderRadius: 4, distributed: true, barHeight: '70%' } },
-    colors: SECTORS.map(s => s.color),
-    legend: { show: false },
+    colors: SECTORS.map(s => s.color), legend: { show: false },
     xaxis: { categories: SECTORS.map(s => s.name), labels: { style: { fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' } } },
     yaxis: { labels: { style: { fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' } } },
     dataLabels: { enabled: true, formatter: v => v != null ? (v>0?'+':'')+v.toFixed(2)+'%' : '', style: { fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', fontWeight: '600' } }
@@ -795,15 +987,13 @@ function updateCharts() {
   chartInstances.bar.updateOptions({ colors: barData.map(v => colorForChange(v)) });
   chartInstances.bar.updateSeries([{ data: barData }]);
   document.getElementById('barPeriodLabel').textContent = currentPeriod.toUpperCase();
-
   chartInstances.radar.updateSeries([{ data: SECTORS.map((s,i) => Math.max(0, (sectorData[i]?.change ?? 0) + 5)) }]);
-  
   chartInstances.heatmap.updateSeries(SECTORS.map((s,i) => ({
     name: s.name, data: [{ x: 'Change', y: parseFloat((sectorData[i]?.change ?? 0).toFixed(2)) }]
   })));
 }
 
-// ─── CONCURRENT DATA EXECUTION ────────────────────────────────────────
+// ─── DATA LOAD ────────────────────────────────────────────────────────
 let currentInterval = '5m';
 function getInterval(p) { return { '1d':'5m', '5d':'30m', '1mo':'1d', '3mo':'1d', '6mo':'1wk', '1y':'1wk' }[p] || '1d'; }
 
@@ -816,9 +1006,10 @@ async function loadAllData() {
   currentInterval = getInterval(currentPeriod);
   sectorData = SECTORS.map(() => ({}));
   const lineSeriesData = [];
-  let niftyBase = null;
+  let niftyCloses = null;
+  const allHistData = new Array(SECTORS.length).fill(null);
 
-  // 1. Fetch Indices and Macro Concurrently
+  // 1. Indices + Macro
   await Promise.all([
     ...INDICES.map(async idx => {
       const q = await fetchQuoteData(idx.sym);
@@ -838,19 +1029,20 @@ async function loadAllData() {
     })
   ]);
 
-  // 2. Fetch NIFTY Baseline for Relative Strength
+  // 2. NIFTY baseline
   document.getElementById('loadingStatus').textContent = 'Processing Relative Strength baseline...';
   const niftyHist = await fetchHistory('%5ENSEI', currentPeriod, currentInterval);
   if (niftyHist?.indicators?.quote?.[0]?.close?.length > 0) {
     const closes = niftyHist.indicators.quote[0].close;
-    niftyBase = closes[0];
+    niftyCloses = closes;
+    const niftyBase = closes[0];
     lineSeriesData.push({
       name: 'NIFTY 50',
       data: (niftyHist.timestamp || []).map((t,i) => closes[i] != null ? { x: t*1000, y: parseFloat(((closes[i]/niftyBase)*100).toFixed(2)) } : null).filter(Boolean)
     });
   }
 
-  // 3. Fetch All Sectors Concurrently (MASSIVE SPEEDUP)
+  // 3. Sectors
   document.getElementById('loadingStatus').textContent = 'Aggregating sector constituents...';
   await Promise.all(SECTORS.map(async (s, i) => {
     try {
@@ -858,26 +1050,23 @@ async function loadAllData() {
         fetchQuoteData(s.ticker),
         fetchHistory(s.ticker, currentPeriod, currentInterval)
       ]);
-
       let change = quote?.change ?? null;
-      let price = quote?.price ?? null;
+      let price  = quote?.price ?? null;
       let rs = 0;
-
       if (hist?.indicators?.quote?.[0]?.close?.length > 1) {
         const closes = hist.indicators.quote[0].close;
         const first = closes.find(c => c != null);
-        const last = [...closes].reverse().find(c => c != null);
-        
+        const last  = [...closes].reverse().find(c => c != null);
         if (first && last) {
           change = ((last - first) / first) * 100;
-          price = last;
+          price  = last;
           const niftyReturn = lineSeriesData[0]?.data?.slice(-1)[0]?.y;
           if (niftyReturn) rs = change - (niftyReturn - 100);
-          
           lineSeriesData.push({
             name: s.name,
-            data: (hist.timestamp || []).map((t, j) => closes[j] != null ? { x: t*1000, y: parseFloat(((closes[j]/first)*100).toFixed(2)) } : null).filter(Boolean)
+            data: (hist.timestamp || []).map((t,j) => closes[j] != null ? { x: t*1000, y: parseFloat(((closes[j]/first)*100).toFixed(2)) } : null).filter(Boolean)
           });
+          allHistData[i] = { closes };
         }
       }
       sectorData[i] = { change, price, rs };
@@ -886,7 +1075,7 @@ async function loadAllData() {
     }
   }));
 
-  // Update DOM exactly once after all promises resolve
+  // 4. Update standard UI
   renderTiles();
   updateCharts();
   renderLeaderboard();
@@ -896,6 +1085,28 @@ async function loadAllData() {
     chartInstances.line.updateSeries(lineSeriesData.slice(0, 7));
     chartInstances.line.updateOptions({ xaxis: { labels: { format: ['1d','5d'].includes(currentPeriod) ? 'HH:mm' : 'dd MMM' } } });
   }
+
+  // 5. Compute + draw RRG
+  document.getElementById('loadingStatus').textContent = 'Computing Relative Rotation Graph...';
+  if (niftyCloses && niftyCloses.length > 1) {
+    rrgPoints = computeRRGPoints(allHistData, niftyCloses);
+  } else {
+    // Fallback: synthesize RRG from change/rs data when live data unavailable
+    rrgPoints = SECTORS.map((s,i) => {
+      const d = sectorData[i];
+      const chg = d?.change ?? 0;
+      const rs  = d?.rs ?? 0;
+      return {
+        sector: s, i,
+        rsRatio:    clamp(100 + chg * 0.8, 88, 112),
+        rsMomentum: clamp(100 + rs  * 0.6, 88, 112),
+        change: chg,
+        trail: []
+      };
+    });
+  }
+  drawRRG(rrgPoints);
+  updateRRGQuadrants(rrgPoints);
 
   document.getElementById('loadingOverlay').classList.add('hidden');
   btn.classList.remove('spinning');
@@ -913,8 +1124,10 @@ function setPeriod(p, btn) {
 window.addEventListener('DOMContentLoaded', () => {
   renderTiles();
   initCharts();
+  initRRGInteraction();
   loadAllData();
   setInterval(loadAllData, 5 * 60 * 1000);
+  window.addEventListener('resize', () => { if (rrgPoints.length) drawRRG(rrgPoints); });
 });
 </script>
 </body>
