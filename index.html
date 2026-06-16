@@ -437,11 +437,11 @@ function computeRRGFull(sc,nc){
   });
   const sm=ema(rc,10);
   const{m:smm,s:sms}=st(sm);
-  const ratioSeries=sm.map(v=>cl(norm(v,smm,sms),84,116));
+  const ratioSeries=sm.map(v=>cl(norm(v,smm,sms),80,120));
   const deltas=ratioSeries.map((v,i)=>i===0?0:v-ratioSeries[i-1]);
   const momSm=ema(deltas,5);
   const{m:mm,s:ms}=st(momSm);
-  const momSeries=momSm.map(v=>cl(norm(v,mm,ms),84,116));
+  const momSeries=momSm.map(v=>cl(norm(v,mm,ms),80,120));
 
   // Build full history for playback
   const history=ratioSeries.map((rr,i)=>({rsRatio:rr,rsMomentum:momSeries[i]||100}));
@@ -555,8 +555,8 @@ async function loadAll(){
       if(niftyCloses.length>5&&closes.length>5){
         rrg=computeRRGFull(closes,niftyCloses);
       }else{
-        rrg.rsRatio=cl(100+change*0.9,84,116);
-        rrg.rsMomentum=cl(100+change*0.5,84,116);
+        rrg.rsRatio=cl(100+change*0.9,80,120);
+        rrg.rsMomentum=cl(100+change*0.5,80,120);
       }
       // line series (top 7)
       if(idx<7&&first){
@@ -776,15 +776,6 @@ function drawBar(){
     ctx.fillStyle=col+'77';
     if(ctx.roundRect)ctx.roundRect(x,y,bw,bH,2);else ctx.rect(x,y,bw,bH);
     ctx.fill();
-    // velocity indicator line
-    if(s.velocity){
-      const vx=cx+cl(s.velocity*8,-cW/2,cW/2);
-      ctx.shadowBlur=0;
-      ctx.strokeStyle='#a78bfa88';ctx.lineWidth=1.5;
-      ctx.setLineDash([3,3]);
-      ctx.beginPath();ctx.moveTo(cx,y+bH/2);ctx.lineTo(vx,y+bH/2);ctx.stroke();
-      ctx.setLineDash([]);
-    }
     ctx.shadowBlur=0;
     ctx.fillStyle='#4a617a';ctx.font='500 8.5px Inter';ctx.textAlign='right';ctx.textBaseline='middle';
     ctx.fillText(s.name,pad.l-3,y+bH/2);
@@ -862,53 +853,62 @@ document.getElementById('cvLine').addEventListener('mousemove',e=>{
 document.getElementById('cvLine').addEventListener('mouseleave',()=>{crossX=-1;drawLine();});
 
 // ══════════════════════════════════════════════
-//  HEATMAP (size = conviction/abs change)
+//  HEATMAP — uniform grid, conviction via color intensity
 // ══════════════════════════════════════════════
 function drawHeat(){
   const{ctx,W,H}=setupCanvas('cvHeat');
   if(!sectors.length)return;
   const srt=[...sectors].sort((a,b)=>Math.abs(b.change)-Math.abs(a.change));
-  const maxAbs=Math.max(...srt.map(s=>Math.abs(s.change)),1);
-  const pad=8,gap=4,cols=4;
+  const maxAbs=Math.max(...srt.map(s=>Math.abs(s.change)),0.5);
+  const pad=6,gap=3,cols=4;
   const rows=Math.ceil(srt.length/cols);
-  // treemap-like sizing: bigger abs change = bigger cell
-  // simplified: uniform grid with inner fill sized by conviction
   const cellW=(W-pad*2-(cols-1)*gap)/cols;
   const cellH=(H-pad*2-(rows-1)*gap)/rows;
+  const fSize=Math.max(7,Math.min(10,cellH*0.18));
+  const vSize=Math.max(9,Math.min(13,cellH*0.25));
 
   srt.forEach((s,i)=>{
-    const col=i%cols,row=Math.floor(i/cols);
-    const x=pad+col*(cellW+gap),y=pad+row*(cellH+gap);
-    const c=s.change,abs=Math.abs(c)/maxAbs;
-    // conviction fill = inner rect sized to abs value
-    const r=c>=0?0:200,g=c>=0?Math.round(100+abs*129):Math.round(50-abs*50),b=c>=0?Math.round(80+abs*60):Math.round(60-abs*60);
-    const alpha=0.08+abs*0.55;
-    // outer border
-    ctx.strokeStyle=`rgba(${r},${g},${b},.35)`;ctx.lineWidth=1;
-    ctx.strokeRect(x,y,cellW,cellH);
-    // inner fill (conviction sized)
-    const fillW=cellW*abs,fillH=cellH*abs;
-    const fx=x+(cellW-fillW)/2,fy=y+(cellH-fillH)/2;
-    ctx.fillStyle=`rgba(${r},${g},${b},${alpha})`;
-    if(ctx.roundRect)ctx.roundRect(fx,fy,fillW,fillH,3);else ctx.rect(fx,fy,fillW,fillH);
+    const col=i%cols, row=Math.floor(i/cols);
+    const x=pad+col*(cellW+gap), y=pad+row*(cellH+gap);
+    const c=s.change, abs=Math.abs(c)/maxAbs;
+    const isPos=c>=0;
+    // Base dark bg
+    ctx.fillStyle='#080e18';
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(x,y,cellW,cellH,4);else ctx.rect(x,y,cellW,cellH);
     ctx.fill();
-    // divergence marker
+    // Conviction fill — full cell, intensity = abs
+    const alpha=0.07+abs*0.58;
+    ctx.fillStyle=isPos?`rgba(0,190,110,${alpha})`:`rgba(210,45,75,${alpha})`;
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(x,y,cellW,cellH,4);else ctx.rect(x,y,cellW,cellH);
+    ctx.fill();
+    // Border
+    const bAlpha=0.18+abs*0.45;
+    ctx.strokeStyle=isPos?`rgba(0,229,160,${bAlpha})`:`rgba(255,61,107,${bAlpha})`;
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(x+.5,y+.5,cellW-1,cellH-1,4);else ctx.rect(x+.5,y+.5,cellW-1,cellH-1);
+    ctx.stroke();
+    // Divergence corner marker
     if(s.divergence){
-      ctx.fillStyle='rgba(255,61,107,.5)';
-      ctx.beginPath();ctx.moveTo(x+cellW-10,y);ctx.lineTo(x+cellW,y);ctx.lineTo(x+cellW,y+10);ctx.fill();
+      ctx.fillStyle='rgba(255,61,107,.75)';
+      ctx.beginPath();ctx.moveTo(x+cellW-11,y);ctx.lineTo(x+cellW,y);ctx.lineTo(x+cellW,y+11);ctx.fill();
     }
-    // labels
-    ctx.fillStyle='rgba(221,228,238,.85)';ctx.font=`500 ${Math.min(9.5,cellH*.2)}px Inter`;
+    // Name label
+    ctx.fillStyle=`rgba(200,215,235,${0.6+abs*0.4})`;
+    ctx.font=`500 ${fSize}px Inter`;
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(s.name,x+cellW/2,y+cellH*.36);
-    ctx.fillStyle=c>=0?'#00e5a0':'#ff3d6b';
-    ctx.font=`700 ${Math.min(11,cellH*.26)}px "JetBrains Mono",monospace`;
-    ctx.fillText((c>=0?'+':'')+fc(c)+'%',x+cellW/2,y+cellH*.64);
-    // velocity arrow
-    if(s.velocity){
-      ctx.fillStyle=s.velocity>0?'#a78bfaaa':'#f5a623aa';
-      ctx.font=`9px Inter`;
-      ctx.fillText(s.velocity>0.2?'↗':s.velocity<-0.2?'↘':'→',x+cellW/2,y+cellH*.82);
+    ctx.fillText(s.name,x+cellW/2,y+cellH*0.35);
+    // Change value
+    ctx.fillStyle=isPos?`rgba(0,229,160,${0.75+abs*0.25})`:`rgba(255,61,107,${0.75+abs*0.25})`;
+    ctx.font=`700 ${vSize}px "JetBrains Mono",monospace`;
+    ctx.fillText((c>=0?'+':'')+fc(c)+'%',x+cellW/2,y+cellH*0.64);
+    // Velocity symbol — tiny, bottom center
+    if(s.velocity&&Math.abs(s.velocity)>0.1){
+      ctx.fillStyle=s.velocity>0?'rgba(167,139,250,.7)':'rgba(245,166,35,.7)';
+      ctx.font=`${Math.max(8,fSize-1)}px Inter`;
+      ctx.fillText(s.velocity>0.2?'↗':s.velocity<-0.2?'↘':'→',x+cellW/2,y+cellH*0.85);
     }
     ctx.textBaseline='alphabetic';
   });
@@ -960,10 +960,11 @@ function drawRadar(){
   // Dots + labels
   sectors.forEach((s,i)=>{
     const a=i/n*Math.PI*2-Math.PI/2,r=(vals[i]/mx)*R;
-    ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,2.5,0,Math.PI*2);
-    ctx.fillStyle=s.color;ctx.fill();
-    const lx=cx+Math.cos(a)*(R+11),ly=cy+Math.sin(a)*(R+11);
-    ctx.fillStyle='#4a617a';ctx.font='8px Inter';ctx.textAlign='center';ctx.textBaseline='middle';
+    const dx=Math.cos(a),dy=Math.sin(a);
+    ctx.beginPath();ctx.arc(cx+dx*r,cy+dy*r,3.5,0,Math.PI*2);
+    ctx.fillStyle=s.color;ctx.shadowColor=s.color;ctx.shadowBlur=6;ctx.fill();ctx.shadowBlur=0;
+    const lx=cx+dx*(R+16),ly=cy+dy*(R+16);
+    ctx.fillStyle=s.color+'cc';ctx.font='600 9px Inter';ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText(s.name,lx,ly);
   });
   ctx.textBaseline='alphabetic';
@@ -986,7 +987,7 @@ function rResize(){
   rPAD={t:22,r:22,b:34,l:34};
   rcW=W-rPAD.l-rPAD.r;rcH=H-rPAD.t-rPAD.b;
 }
-const VM=87,VX=113;
+const VM=80,VX=120;
 function rx(v){return rPAD.l+(v-VM)/(VX-VM)*rcW;}
 function ry(v){return rPAD.t+(VX-v)/(VX-VM)*rcH;}
 
@@ -1012,12 +1013,12 @@ function drawRRG(){
   });
 
   // Grid
-  for(let v=89;v<=111;v+=2){
+  for(let v=81;v<=119;v+=2){
     const a=v%10===0?.35:.1;
     rctx.strokeStyle=`rgba(30,48,72,${a})`;rctx.lineWidth=1;
     rctx.beginPath();rctx.moveTo(rx(v),rPAD.t);rctx.lineTo(rx(v),rPAD.t+rcH);rctx.stroke();
     rctx.beginPath();rctx.moveTo(rPAD.l,ry(v));rctx.lineTo(rPAD.l+rcW,ry(v));rctx.stroke();
-    if(v%4===0){
+    if(v%5===0){
       rctx.fillStyle='#2a3d52';rctx.font='7px "JetBrains Mono",monospace';
       rctx.textAlign='center';rctx.fillText(v,rx(v),rPAD.t+rcH+14);
       rctx.textAlign='right';rctx.fillText(v,rPAD.l-4,ry(v)+3);
@@ -1041,45 +1042,59 @@ function drawRRG(){
     const col=QC[quad(s.rsRatio,s.rsMomentum)];
     const isH=hovered===i,isS=selected===i;
 
-    // Trail with gradient opacity + dots
+    // Trail — smooth single path with fading opacity nodes
     if(s.trail&&s.trail.length>1){
       const tl=s.trail.length;
+      // Draw trail as one smooth path per segment pair, oldest=faint newest=solid
       for(let t=1;t<tl;t++){
         const a=s.trail[t-1],b=s.trail[t];
-        const alpha=t/tl;
+        const alpha=(t/tl);
+        const hex=Math.round(alpha*110).toString(16).padStart(2,'0');
         rctx.beginPath();
         rctx.moveTo(rx(a.rsRatio),ry(a.rsMomentum));
         rctx.lineTo(rx(b.rsRatio),ry(b.rsMomentum));
-        rctx.strokeStyle=col+Math.round(alpha*130).toString(16).padStart(2,'0');
-        rctx.lineWidth=1+alpha;rctx.stroke();
-        if(t>tl-5){
-          rctx.beginPath();rctx.arc(rx(b.rsRatio),ry(b.rsMomentum),1.5+alpha*1.5,0,Math.PI*2);
-          rctx.fillStyle=col+Math.round(alpha*160).toString(16).padStart(2,'0');rctx.fill();
-        }
+        rctx.strokeStyle=col+hex;
+        rctx.lineWidth=0.8+alpha*1.2;
+        rctx.setLineDash([]);
+        rctx.stroke();
       }
-      // Arrow at end of trail
-      if(tl>1){
-        const last=s.trail[tl-1],prev=s.trail[tl-2];
-        const ang=Math.atan2(ry(last.rsMomentum)-ry(prev.rsMomentum),rx(last.rsRatio)-rx(prev.rsRatio));
+      // Small dots only on last 4 nodes — not all of them
+      for(let t=Math.max(1,tl-4);t<tl;t++){
+        const b=s.trail[t];
+        const alpha=(t/tl);
+        rctx.beginPath();
+        rctx.arc(rx(b.rsRatio),ry(b.rsMomentum),1.2+alpha*1.4,0,Math.PI*2);
+        rctx.fillStyle=col+Math.round(alpha*140).toString(16).padStart(2,'0');
+        rctx.fill();
+      }
+      // Arrow pointing direction of travel — at second-to-last → last
+      const last=s.trail[tl-1],prev=s.trail[Math.max(0,tl-3)];
+      const dRR=rx(last.rsRatio)-rx(prev.rsRatio);
+      const dRM=ry(last.rsMomentum)-ry(prev.rsMomentum);
+      if(Math.hypot(dRR,dRM)>3){
+        const ang=Math.atan2(dRM,dRR);
         rctx.save();rctx.translate(rx(last.rsRatio),ry(last.rsMomentum));rctx.rotate(ang);
-        rctx.beginPath();rctx.moveTo(0,0);rctx.lineTo(-8,-3);rctx.lineTo(-8,3);
-        rctx.closePath();rctx.fillStyle=col+'aa';rctx.fill();rctx.restore();
+        rctx.beginPath();rctx.moveTo(0,0);rctx.lineTo(-7,-2.5);rctx.lineTo(-7,2.5);
+        rctx.closePath();rctx.fillStyle=col+'cc';rctx.fill();rctx.restore();
       }
     }
 
-    // VELOCITY VECTOR — key institutional feature
-    if(s.velocity&&Math.abs(s.velocity)>0.05){
-      const velScale=rcW/20;
-      const vx=x+s.velocity*velScale,vy=y; // horizontal velocity
-      rctx.strokeStyle='#a78bfacc';rctx.lineWidth=1.5;
-      rctx.shadowColor='#a78bfa';rctx.shadowBlur=4;
-      rctx.beginPath();rctx.moveTo(x,y);rctx.lineTo(vx,vy);rctx.stroke();
-      rctx.shadowBlur=0;
-      // arrowhead
-      const ang=s.velocity>0?0:Math.PI;
-      rctx.save();rctx.translate(vx,vy);rctx.rotate(ang);
-      rctx.beginPath();rctx.moveTo(0,0);rctx.lineTo(-6,-2.5);rctx.lineTo(-6,2.5);
-      rctx.closePath();rctx.fillStyle='#a78bfa';rctx.fill();rctx.restore();
+    // VELOCITY VECTOR — capped short arrow showing RS-Ratio acceleration direction
+    if(s.velocity&&Math.abs(s.velocity)>0.08){
+      const maxLen=18; // cap so it never crosses quadrant boundaries
+      const raw=s.velocity*rcW/60;
+      const len=Math.max(-maxLen,Math.min(maxLen,raw));
+      const vx=x+len, vy=y; // RS-Ratio axis only (horizontal)
+      if(Math.abs(len)>3){
+        rctx.strokeStyle='#a78bfa99';rctx.lineWidth=1;
+        rctx.shadowColor='#a78bfa';rctx.shadowBlur=3;
+        rctx.beginPath();rctx.moveTo(x,y);rctx.lineTo(vx,vy);rctx.stroke();
+        rctx.shadowBlur=0;
+        const ang=len>0?0:Math.PI;
+        rctx.save();rctx.translate(vx,vy);rctx.rotate(ang);
+        rctx.beginPath();rctx.moveTo(0,0);rctx.lineTo(-5,-2);rctx.lineTo(-5,2);
+        rctx.closePath();rctx.fillStyle='#a78bfacc';rctx.fill();rctx.restore();
+      }
     }
 
     // Divergence halo
