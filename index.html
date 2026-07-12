@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sector Rotation · Simple</title>
+<title>Sector Rotation · RRG</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -15,14 +15,17 @@
 html,body{height:100%;background:var(--bg);}
 body{color:var(--t1);font-family:'Inter',sans-serif;display:flex;flex-direction:column;overflow:hidden;}
 @keyframes spin{to{transform:rotate(360deg);}}
+@keyframes shimmer{0%{background-position:-200px 0;}100%{background-position:200px 0;}}
+@keyframes fadeIn{from{opacity:0;transform:scale(.5);}to{opacity:1;transform:scale(1);}}
+@keyframes flipPulse{0%,100%{opacity:1;}50%{opacity:.35;}}
 
-/* loading */
-#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .4s;}
+/* ══ INITIAL LOADER (only shown until benchmark resolves — brief) ══ */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .35s;}
 #loading.out{opacity:0;pointer-events:none;}
-.ld-ring{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--up);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px;}
+.ld-ring{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--up);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px;}
 .ld-txt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);letter-spacing:1px;}
 
-/* header */
+/* ══ HEADER ══ */
 #hdr{flex-shrink:0;display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
 .title{font-size:15px;font-weight:600;letter-spacing:-.2px;margin-right:6px;}
 .title span{color:var(--t2);font-weight:400;font-size:12px;}
@@ -30,25 +33,24 @@ select,.pb{font-family:'JetBrains Mono',monospace;font-size:10.5px;background:va
 select:hover,.pb:hover{border-color:var(--t3);color:var(--t1);}
 .pb.act{background:var(--up);border-color:var(--up);color:#0b0d12;font-weight:700;}
 .pgroup{display:flex;gap:4px;}
-#refresh{margin-left:auto;display:flex;align-items:center;gap:6px;}
+#loadStat{font-size:9.5px;font-family:'JetBrains Mono',monospace;color:var(--t3);display:flex;align-items:center;gap:5px;}
+#loadStat .dot{width:5px;height:5px;border-radius:50%;background:var(--up);}
+#loadStat.busy .dot{animation:flipPulse 1s infinite;}
+#refresh{margin-left:auto;display:flex;align-items:center;gap:10px;}
 #refresh button{display:flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--border);color:var(--t2);border-radius:6px;padding:5px 12px;font-size:10.5px;font-family:'JetBrains Mono',monospace;cursor:pointer;}
 #refresh button:hover{border-color:var(--up);color:var(--up);}
 #refresh button.spin svg{animation:spin .7s linear infinite;}
 #updT{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
 
-/* body */
+/* ══ MAIN ══ */
 #main{flex:1;display:grid;grid-template-columns:1.4fr 1fr;min-height:0;}
 #rrgPanel{border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;}
 #listPanel{display:flex;flex-direction:column;min-height:0;background:var(--panel);}
 .p-hdr{flex-shrink:0;padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .p-hdr h2{font-size:11px;font-weight:600;color:var(--t2);letter-spacing:.8px;text-transform:uppercase;}
-.p-sub{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
 .legend{display:flex;gap:12px;}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:9.5px;color:var(--t2);font-family:'JetBrains Mono',monospace;}
 .leg-dot{width:6px;height:6px;border-radius:50%;}
-
-#rrgWrap{flex:1;position:relative;min-height:0;}
-#rrgCv{position:absolute;inset:0;width:100%;height:100%;cursor:default;}
 
 /* playback */
 #playWrap{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:7px 16px;border-bottom:1px solid var(--border);background:var(--bg);}
@@ -62,19 +64,20 @@ select:hover,.pb:hover{border-color:var(--t3);color:var(--t1);}
 .tail-btn{padding:2px 7px;background:transparent;border:1px solid var(--border);color:var(--t3);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:8.5px;cursor:pointer;}
 .tail-btn.act{background:var(--impr);border-color:var(--impr);color:#fff;}
 
-/* insight strip */
-#insight{flex-shrink:0;padding:9px 18px;border-bottom:1px solid var(--border);font-size:10.5px;color:var(--t2);line-height:1.6;background:rgba(34,197,94,.02);}
+#rrgWrap{flex:1;position:relative;min-height:0;}
+#rrgCv{position:absolute;inset:0;width:100%;height:100%;cursor:default;}
+
+/* insight */
+#insight{flex-shrink:0;padding:9px 18px;border-bottom:1px solid var(--border);font-size:10.5px;color:var(--t2);line-height:1.6;background:rgba(34,197,94,.02);min-height:16px;}
 #insight b{color:var(--t1);}
 #insight .up-txt{color:var(--up);}
 #insight .dn-txt{color:var(--dn);}
 
-/* sort */
 .sort-sel{font-family:'JetBrains Mono',monospace;font-size:9.5px;background:var(--bg);border:1px solid var(--border);color:var(--t2);border-radius:5px;padding:3px 7px;cursor:pointer;}
 
-/* list */
+/* list rows */
 #list{flex:1;overflow-y:auto;}
-.row{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid rgba(31,36,46,.6);cursor:default;transition:background .1s;}
-.row:hover{background:rgba(255,255,255,.02);}
+.row{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid rgba(31,36,46,.6);}
 .row-rk{width:16px;font-size:9.5px;color:var(--t3);font-family:'JetBrains Mono',monospace;flex-shrink:0;}
 .row-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .row-name{flex:1;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:6px;}
@@ -82,11 +85,15 @@ select:hover,.pb:hover{border-color:var(--t3);color:var(--t1);}
 .row-r{text-align:right;flex-shrink:0;}
 .row-c{font-size:12.5px;font-weight:600;font-family:'JetBrains Mono',monospace;}
 .row-metric{font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:2px;}
-.flip-badge{font-size:7.5px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:1px 5px;border-radius:3px;letter-spacing:.3px;}
+.flip-badge{font-size:7.5px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:1px 5px;border-radius:3px;letter-spacing:.3px;animation:flipPulse 1.6s infinite;}
 .flip-in{background:rgba(34,197,94,.15);color:var(--up);}
 .flip-out{background:rgba(239,68,68,.15);color:var(--dn);}
-@keyframes flipPulse{0%,100%{opacity:1;}50%{opacity:.35;}}
-.flip-badge{animation:flipPulse 1.6s infinite;}
+
+/* skeleton (pending sector) */
+.sk-bar{height:10px;border-radius:3px;background:linear-gradient(90deg,var(--border) 25%,#2a3040 37%,var(--border) 63%);background-size:400px 100%;animation:shimmer 1.3s infinite linear;}
+.sk-name{width:70px;margin-bottom:6px;}
+.sk-sub{width:120px;height:7px;}
+.sk-num{width:44px;height:12px;}
 
 /* tooltip */
 #tt{position:fixed;background:rgba(11,13,18,.97);border:1px solid var(--border);border-radius:8px;padding:10px 12px;pointer-events:none;opacity:0;transition:opacity .1s;z-index:500;min-width:170px;}
@@ -123,6 +130,7 @@ select:hover,.pb:hover{border-color:var(--t3);color:var(--t1);}
     <button class="pb" onclick="setPeriod('6mo',this)">6M</button>
     <button class="pb" onclick="setPeriod('1y',this)">1Y</button>
   </div>
+  <div id="loadStat"><span class="dot"></span><span id="loadStatTxt">idle</span></div>
   <div id="refresh">
     <span id="updT">—</span>
     <button id="btnRef" onclick="loadAll()">
@@ -158,7 +166,7 @@ select:hover,.pb:hover{border-color:var(--t3);color:var(--t1);}
     <div id="rrgWrap"><canvas id="rrgCv"></canvas></div>
   </div>
   <div id="listPanel">
-    <div id="insight">Analyzing rotation…</div>
+    <div id="insight">Waiting for data…</div>
     <div class="p-hdr">
       <h2>Leaderboard</h2>
       <select class="sort-sel" id="sortSel" onchange="renderList()">
@@ -185,6 +193,9 @@ select:hover,.pb:hover{border-color:var(--t3);color:var(--t1);}
 </div>
 
 <script>
+/* ══════════════════════════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════════════════════════ */
 const SECTORS=[
   {name:'Banking',   t:'%5ENSEBANK',   color:'#3b82f6'},
   {name:'IT',        t:'%5ECNXIT',     color:'#a78bfa'},
@@ -199,19 +210,28 @@ const SECTORS=[
   {name:'Fin Serv.', t:'%5EFINSERVICE',color:'#34d399'},
   {name:'Cons Dur.', t:'%5ECNXCONSUM', color:'#f87171'},
 ];
-let period='1mo', bench='%5ENSEI', benchName='NIFTY 50';
-let sectors=[],hitTargets=[],hovered=-1;
-let TRAIL_LEN=16;
-let rrgHistory=[],playFrameIdx=0,isPlaying=false,playTimer=null;
-let sortBy='change';
-
 const PX=[
   u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
   u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
 ];
-let bestProxyIdx=-1;
 
+/* ══════════════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════════════ */
+let period='1mo', bench='%5ENSEI', benchName='NIFTY 50';
+let sectors=SECTORS.map(s=>({...s,loading:true,change:null,rsRatio:100,rsMomentum:100,history:[],trail:[],velocity:0,qAge:99,score:0}));
+let hitTargets=[],hovered=-1;
+let TRAIL_LEN=16;
+let rrgHistory=[],playFrameIdx=0,isPlaying=false,playTimer=null;
+let sortBy='change';
+let bestProxyIdx=-1;
+let niftyCloses=[];
+let loadGen=0; // increments each loadAll() call so stale in-flight fetches from a previous request are ignored
+
+/* ══════════════════════════════════════════════════════════
+   FETCH LAYER
+   ══════════════════════════════════════════════════════════ */
 async function fetchOne(url,ms){
   const r=await fetch(url,{signal:AbortSignal.timeout(ms)});
   if(!r.ok)throw new Error('bad status');
@@ -220,20 +240,12 @@ async function fetchOne(url,ms){
   if(!res)throw new Error('no data');
   return res;
 }
-
-// Racing all 3 proxies on *every* symbol (39 simultaneous requests for 13
-// symbols) is what free CORS proxies throttle hardest. Instead, race them
-// ONCE on a single lightweight request to find whichever is fastest right now,
-// then reuse that one proxy — only falling back to the others if it fails.
 async function detectBestProxy(){
   const testUrl=`https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?range=1d&interval=1d`;
   const tagged=PX.map((p,i)=>fetchOne(p(testUrl),6000).then(()=>i));
   try{ bestProxyIdx=await Promise.any(tagged); }
   catch{ bestProxyIdx=0; }
 }
-
-// Small concurrency limiter — keeps at most `n` requests in flight at once so
-// we don't trip a proxy's per-second rate limit.
 function pLimit(n){
   let active=0;const queue=[];
   const run=async(fn,resolve,reject)=>{
@@ -248,7 +260,6 @@ function pLimit(n){
   });
 }
 const limit=pLimit(4);
-
 async function yf(sym,range,interval){
   const url=`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=${range}&interval=${interval}&includePrePost=false`;
   const order=[bestProxyIdx,...PX.map((_,i)=>i).filter(i=>i!==bestProxyIdx)];
@@ -259,6 +270,9 @@ async function yf(sym,range,interval){
 }
 function iv(p){return{'1mo':'1d','3mo':'1d','6mo':'1wk','1y':'1wk'}[p]||'1d';}
 
+/* ══════════════════════════════════════════════════════════
+   RRG MATH
+   ══════════════════════════════════════════════════════════ */
 function ema(arr,p){
   const k=2/(p+1);let prev=arr[0]??0;
   return arr.map(v=>{const x=v??prev;return prev=x*k+prev*(1-k),prev;});
@@ -281,8 +295,6 @@ const QC={leading:'#22c55e',weakening:'#f59e0b',lagging:'#ef4444',improving:'#3b
 const QL={leading:'Leading',weakening:'Weakening',lagging:'Lagging',improving:'Improving'};
 function fc(n,d=2){return n==null||isNaN(n)?'—':n.toFixed(d);}
 
-// Full RS-Ratio + RS-Momentum series (JdK-style), returns entire history so we can
-// scrub through it and measure real velocity / quadrant-transition timing.
 function computeRRGFull(sc,nc){
   const n=Math.min(sc.length,nc.length);
   if(n<5)return{rsRatio:100,rsMomentum:100,history:[]};
@@ -307,20 +319,13 @@ function computeRRGFull(sc,nc){
   const history=ratioSeries.map((rr,i)=>({rsRatio:rr,rsMomentum:momSeries[i]||100}));
   return{rsRatio:ratioSeries[ratioSeries.length-1],rsMomentum:momSeries[momSeries.length-1],history};
 }
-
-// Rotation Score: distance from the neutral (100,100) center, signed by which
-// side of the wheel it's on. This ranks sectors by rotation strength — a sector
-// can be up 3% on price but weak on this score if it's drifting toward Lagging.
 function rotationScore(rr,rm){
   const dr=rr-100, dm=rm-100;
   const dist=Math.hypot(dr,dm);
-  const sign=(quad(rr,rm)==='leading')?1:(quad(rr,rm)==='lagging')?-1:(quad(rr,rm)==='improving'?0.5:-0.5);
+  const q=quad(rr,rm);
+  const sign=q==='leading'?1:q==='lagging'?-1:q==='improving'?0.5:-0.5;
   return dist*sign;
 }
-
-// How many bars ago did this sector enter its current quadrant? Used to flag
-// fresh rotations (the actual tradeable signal) vs. sectors that have been
-// sitting in the same quadrant for weeks.
 function quadrantAge(history){
   if(!history||history.length<2)return 99;
   const cur=quad(history[history.length-1].rsRatio,history[history.length-1].rsMomentum);
@@ -330,60 +335,94 @@ function quadrantAge(history){
   return history.length-1;
 }
 
+/* ══════════════════════════════════════════════════════════
+   LOAD — progressive: benchmark first, then sectors stream in
+   and render individually as each resolves, instead of one big
+   blocking wait for all 12 to finish.
+   ══════════════════════════════════════════════════════════ */
 async function loadAll(){
+  const myGen=++loadGen;
   const btn=document.getElementById('btnRef');
   btn.classList.add('spin');
   const ldTxt=document.getElementById('ldS');
+  const statTxt=document.getElementById('loadStatTxt');
+  const statEl=document.getElementById('loadStat');
+  statEl.classList.add('busy');
   const interval=iv(period);
+
+  // reset to skeleton state
+  sectors=SECTORS.map(s=>({...s,loading:true,change:null,rsRatio:100,rsMomentum:100,history:[],trail:[],velocity:0,qAge:99,score:0}));
+  rrgHistory=[];
+  renderList();
 
   if(bestProxyIdx===-1){
     if(ldTxt)ldTxt.textContent='Finding fastest connection...';
     await detectBestProxy();
   }
-  if(ldTxt)ldTxt.textContent='Streaming 12 sectors...';
+  if(myGen!==loadGen)return;
 
-  // Fetch benchmark + all 12 sectors at the same time (previously the benchmark
-  // was awaited first, then sectors started — doubling the wait).
-  const [nHist,...sectorHists]=await Promise.all([
-    yf(bench,period,interval),
-    ...SECTORS.map(s=>yf(s.t,period,interval))
-  ]);
-  let niftyCloses=[];
-  if(nHist?.indicators?.quote?.[0]?.close)niftyCloses=nHist.indicators.quote[0].close;
+  statTxt.textContent='loading benchmark';
+  const nHist=await yf(bench,period,interval);
+  if(myGen!==loadGen)return;
+  niftyCloses=(nHist?.indicators?.quote?.[0]?.close)||[];
 
-  const results=SECTORS.map((s,idx)=>{
-    try{
-      const h=sectorHists[idx];
-      if(!h)return null;
-      const closes=h.indicators?.quote?.[0]?.close||[];
-      const first=closes.find(v=>v!=null)||1;
-      const last=[...closes].reverse().find(v=>v!=null)||first;
-      const change=((last-first)/first)*100;
-      let rrg={rsRatio:100,rsMomentum:100,history:[]};
-      if(niftyCloses.length>5&&closes.length>5)rrg=computeRRGFull(closes,niftyCloses);
-      else{rrg.rsRatio=cl(100+change*0.9,80,120);rrg.rsMomentum=cl(100+change*0.5,80,120);}
-      return{...s,change,...rrg};
-    }catch{return null;}
-  });
-  sectors=results.filter(Boolean).map(s=>{
-    const h=s.history||[];
-    const vLen=Math.min(3,h.length);
-    const velocity=vLen>1?(h[h.length-1].rsRatio-h[h.length-vLen].rsRatio)/vLen:0;
-    return{...s,trail:h.slice(-TRAIL_LEN-1),velocity,qAge:quadrantAge(h),score:rotationScore(s.rsRatio,s.rsMomentum)};
-  });
-
-  buildPlaybackHistory();
-  renderList();
-  document.getElementById('updT').textContent='Updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('lbSub').textContent=sectors.length+' sectors';
-  btn.classList.remove('spin');
+  // Benchmark is in — reveal the dashboard now. Sector dots will pop in
+  // individually over the next couple seconds instead of everyone waiting
+  // behind one spinner.
   document.getElementById('loading').classList.add('out');
-  setTimeout(()=>document.getElementById('loading').style.display='none',400);
+  setTimeout(()=>document.getElementById('loading').style.display='none',350);
+
+  let loadedCount=0;
+  statTxt.textContent=`0/${SECTORS.length} sectors`;
+
+  SECTORS.forEach((s,idx)=>{
+    yf(s.t,period,interval).then(h=>{
+      if(myGen!==loadGen)return;
+      if(!h){ sectors[idx].loading=false; sectors[idx].error=true; }
+      else{
+        const closes=h.indicators?.quote?.[0]?.close||[];
+        const first=closes.find(v=>v!=null)||1;
+        const last=[...closes].reverse().find(v=>v!=null)||first;
+        const change=((last-first)/first)*100;
+        let rrg={rsRatio:100,rsMomentum:100,history:[]};
+        if(niftyCloses.length>5&&closes.length>5)rrg=computeRRGFull(closes,niftyCloses);
+        else{rrg.rsRatio=cl(100+change*0.9,80,120);rrg.rsMomentum=cl(100+change*0.5,80,120);}
+        const hist=rrg.history||[];
+        const vLen=Math.min(3,hist.length);
+        const velocity=vLen>1?(hist[hist.length-1].rsRatio-hist[hist.length-vLen].rsRatio)/vLen:0;
+        sectors[idx]={
+          ...sectors[idx],...s,change,...rrg,loading:false,
+          trail:hist.slice(-TRAIL_LEN-1),velocity,
+          qAge:quadrantAge(hist),score:rotationScore(rrg.rsRatio,rrg.rsMomentum),
+          justArrived:true
+        };
+        setTimeout(()=>{if(sectors[idx])sectors[idx].justArrived=false;},700);
+      }
+      loadedCount++;
+      statTxt.textContent=loadedCount<SECTORS.length?`${loadedCount}/${SECTORS.length} sectors`:'live';
+      if(loadedCount>=SECTORS.length)statEl.classList.remove('busy');
+      buildPlaybackHistory();
+      renderList();
+    }).catch(()=>{
+      if(myGen!==loadGen)return;
+      sectors[idx].loading=false;sectors[idx].error=true;
+      loadedCount++;
+      statTxt.textContent=`${loadedCount}/${SECTORS.length} sectors`;
+      renderList();
+    });
+  });
+
+  document.getElementById('updT').textContent='Updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  btn.classList.remove('spin');
 }
 
+/* ══════════════════════════════════════════════════════════
+   PLAYBACK
+   ══════════════════════════════════════════════════════════ */
 function buildPlaybackHistory(){
-  const withHist=sectors.filter(s=>s.history&&s.history.length>1);
-  const minLen=withHist.length?Math.min(...withHist.map(s=>s.history.length)):0;
+  const ready=sectors.filter(s=>!s.loading&&s.history&&s.history.length>1);
+  if(ready.length<sectors.length){rrgHistory=[];updatePlayLabel();return;} // wait until all sectors are in before allowing scrub
+  const minLen=Math.min(...ready.map(s=>s.history.length));
   if(minLen<2){rrgHistory=[];updatePlayLabel();return;}
   rrgHistory=[];
   for(let f=0;f<minLen;f++){
@@ -404,6 +443,7 @@ function getCurrentSectors(){
   return rrgHistory[Math.min(playFrameIdx,rrgHistory.length-1)];
 }
 function togglePlay(){
+  if(!rrgHistory.length)return;
   isPlaying=!isPlaying;
   const btn=document.getElementById('btnPlay');
   btn.textContent=isPlaying?'⏸':'▶';
@@ -426,7 +466,7 @@ function runPlay(){
   }
   playTimer=setTimeout(runPlay,140);
 }
-function stepBack(){playFrameIdx=Math.max(0,playFrameIdx-1);document.getElementById('playSlider').value=playFrameIdx;updatePlayLabel();}
+function stepBack(){if(!rrgHistory.length)return;playFrameIdx=Math.max(0,playFrameIdx-1);document.getElementById('playSlider').value=playFrameIdx;updatePlayLabel();}
 function stepFwd(){if(!rrgHistory.length)return;playFrameIdx=Math.min(rrgHistory.length-1,playFrameIdx+1);document.getElementById('playSlider').value=playFrameIdx;updatePlayLabel();}
 function onSlider(v){playFrameIdx=parseInt(v);updatePlayLabel();}
 function updatePlayLabel(){
@@ -442,15 +482,40 @@ function setTail(n,btn){
   buildPlaybackHistory();
 }
 
+/* ══════════════════════════════════════════════════════════
+   LEADERBOARD + INSIGHT
+   ══════════════════════════════════════════════════════════ */
 function renderList(){
   sortBy=document.getElementById('sortSel')?.value||sortBy;
   const key={change:'change',score:'score',ratio:'rsRatio',momentum:'rsMomentum'}[sortBy]||'change';
-  const sorted=[...sectors].sort((a,b)=>b[key]-a[key]);
+  const sorted=[...sectors].sort((a,b)=>{
+    if(a.loading&&!b.loading)return 1;
+    if(!a.loading&&b.loading)return -1;
+    return (b[key]||0)-(a[key]||0);
+  });
   document.getElementById('list').innerHTML=sorted.map((s,i)=>{
+    if(s.loading){
+      return`<div class="row">
+        <div class="row-rk">${i+1}</div>
+        <div class="row-dot" style="background:${s.color}44"></div>
+        <div style="flex:1">
+          <div class="sk-bar sk-name"></div>
+          <div class="sk-bar sk-sub"></div>
+        </div>
+        <div class="row-r"><div class="sk-bar sk-num"></div></div>
+      </div>`;
+    }
+    if(s.error){
+      return`<div class="row">
+        <div class="row-rk">${i+1}</div>
+        <div class="row-dot" style="background:${s.color}"></div>
+        <div style="flex:1"><div class="row-name">${s.name}</div><div class="row-q">Data unavailable</div></div>
+      </div>`;
+    }
     const q=quad(s.rsRatio,s.rsMomentum);
     const justFlipped=s.qAge<=2;
     const flippedIn=(q==='leading'||q==='improving');
-    return`<div class="row">
+    return`<div class="row" style="${s.justArrived?'animation:fadeIn .4s ease':''}">
       <div class="row-rk">${i+1}</div>
       <div class="row-dot" style="background:${s.color}"></div>
       <div style="flex:1">
@@ -462,23 +527,26 @@ function renderList(){
       </div>
     </div>`;
   }).join('');
-  renderInsight(sorted);
+  renderInsight();
 }
-
-function renderInsight(sorted){
-  if(!sorted.length)return;
-  const leaders=sectors.filter(s=>quad(s.rsRatio,s.rsMomentum)==='leading').sort((a,b)=>b.score-a.score);
-  const lagging=sectors.filter(s=>quad(s.rsRatio,s.rsMomentum)==='lagging').sort((a,b)=>a.score-b.score);
-  const freshIn=sectors.filter(s=>s.qAge<=2&&(quad(s.rsRatio,s.rsMomentum)==='leading'||quad(s.rsRatio,s.rsMomentum)==='improving'));
-  const freshOut=sectors.filter(s=>s.qAge<=2&&(quad(s.rsRatio,s.rsMomentum)==='lagging'||quad(s.rsRatio,s.rsMomentum)==='weakening'));
+function renderInsight(){
+  const ready=sectors.filter(s=>!s.loading&&!s.error);
+  if(!ready.length)return;
+  const leaders=ready.filter(s=>quad(s.rsRatio,s.rsMomentum)==='leading').sort((a,b)=>b.score-a.score);
+  const lagging=ready.filter(s=>quad(s.rsRatio,s.rsMomentum)==='lagging').sort((a,b)=>a.score-b.score);
+  const freshIn=ready.filter(s=>s.qAge<=2&&(quad(s.rsRatio,s.rsMomentum)==='leading'||quad(s.rsRatio,s.rsMomentum)==='improving'));
+  const freshOut=ready.filter(s=>s.qAge<=2&&(quad(s.rsRatio,s.rsMomentum)==='lagging'||quad(s.rsRatio,s.rsMomentum)==='weakening'));
   let txt='';
   if(leaders.length)txt+=`Strongest: <b class="up-txt">${leaders.slice(0,3).map(s=>s.name).join(', ')}</b>. `;
   if(lagging.length)txt+=`Weakest: <b class="dn-txt">${lagging.slice(0,3).map(s=>s.name).join(', ')}</b>. `;
   if(freshIn.length)txt+=`Just turned up: <b>${freshIn.map(s=>s.name).join(', ')}</b>. `;
   if(freshOut.length)txt+=`Just turned down: <b>${freshOut.map(s=>s.name).join(', ')}</b>.`;
-  document.getElementById('insight').innerHTML=txt||'No clear rotation signal yet.';
+  document.getElementById('insight').innerHTML=txt||(sectors.some(s=>s.loading)?'Loading sectors…':'No clear rotation signal yet.');
 }
 
+/* ══════════════════════════════════════════════════════════
+   RRG CANVAS
+   ══════════════════════════════════════════════════════════ */
 const rrgCv=document.getElementById('rrgCv');
 const rctx=rrgCv.getContext('2d');
 let rPAD,rcW,rcH,rDpr;
@@ -521,13 +589,11 @@ function drawRRG(){
   hitTargets=[];
   const cur=getCurrentSectors();
   cur.forEach((s,i)=>{
+    if(s.loading||s.error)return;
     const x=rx(s.rsRatio),y=ry(s.rsMomentum);
     const col=QC[quad(s.rsRatio,s.rsMomentum)];
     const isH=hovered===i;
 
-    // Fading trail: oldest = faint, newest = solid, with a small arrowhead
-    // showing the direction of travel — this is what actually shows a sector
-    // "rotating" rather than just sitting at a point.
     if(s.trail&&s.trail.length>1){
       const tl=s.trail.length;
       for(let t=1;t<tl;t++){
@@ -551,7 +617,6 @@ function drawRRG(){
       }
     }
 
-    // Flip pulse — a soft ring around sectors that changed quadrant recently
     if(s.qAge<=2){
       const t=(Date.now()/500)%2;
       const p=t<1?t:2-t;
@@ -572,7 +637,6 @@ function drawRRG(){
     hitTargets.push({x,y,r:11,i});
   });
 
-  // Playback progress bar under the chart
   if(rrgHistory.length&&playFrameIdx<rrgHistory.length-1){
     const pct=playFrameIdx/(rrgHistory.length-1);
     rctx.fillStyle='#22c55e33';
@@ -580,6 +644,9 @@ function drawRRG(){
   }
 }
 
+/* ══════════════════════════════════════════════════════════
+   INTERACTIONS
+   ══════════════════════════════════════════════════════════ */
 rrgCv.addEventListener('mousemove',e=>{
   const rect=rrgCv.getBoundingClientRect();
   const mx=e.clientX-rect.left,my=e.clientY-rect.top;
@@ -591,6 +658,7 @@ rrgCv.addEventListener('mousemove',e=>{
     const cur=getCurrentSectors();
     const s=cur[found];
     const full=sectors[found];
+    if(!s||s.loading){tt.classList.remove('show');return;}
     const q=quad(s.rsRatio,s.rsMomentum);
     document.getElementById('ttNm').textContent=s.name;
     const qb=document.getElementById('ttQb');
@@ -611,10 +679,10 @@ rrgCv.addEventListener('mousemove',e=>{
     tt.classList.add('show');
   }else tt.classList.remove('show');
 });
-rrgCv.addEventListener('mouseleave',()=>{hovered=-1;drawRRG();document.getElementById('tt').classList.remove('show');});
+rrgCv.addEventListener('mouseleave',()=>{hovered=-1;document.getElementById('tt').classList.remove('show');});
 
 function setPeriod(p,btn){
-  period=p;document.querySelectorAll('.pb').forEach(b=>b.classList.remove('act'));btn.classList.add('act');loadAll();
+  period=p;document.querySelectorAll('.pgroup .pb').forEach(b=>b.classList.remove('act'));btn.classList.add('act');loadAll();
 }
 function setBench(v){
   bench=v;
