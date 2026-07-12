@@ -107,7 +107,7 @@ select:hover,.pb:hover{border-color:var(--t3);color:var(--t1);}
 
 <div id="loading">
   <div class="ld-ring"></div>
-  <div class="ld-txt">LOADING SECTOR DATA...</div>
+  <div class="ld-txt" id="ldS">Connecting...</div>
 </div>
 
 <div id="hdr">
@@ -210,6 +210,8 @@ const PX=[
   u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
   u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
 ];
+let bestProxyIdx=-1;
+
 async function fetchOne(url,ms){
   const r=await fetch(url,{signal:AbortSignal.timeout(ms)});
   if(!r.ok)throw new Error('bad status');
@@ -218,13 +220,42 @@ async function fetchOne(url,ms){
   if(!res)throw new Error('no data');
   return res;
 }
-// Race all proxies at once instead of trying them one-by-one — whichever
-// responds first wins, so a single slow/dead proxy no longer stalls the load.
+
+// Racing all 3 proxies on *every* symbol (39 simultaneous requests for 13
+// symbols) is what free CORS proxies throttle hardest. Instead, race them
+// ONCE on a single lightweight request to find whichever is fastest right now,
+// then reuse that one proxy — only falling back to the others if it fails.
+async function detectBestProxy(){
+  const testUrl=`https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?range=1d&interval=1d`;
+  const tagged=PX.map((p,i)=>fetchOne(p(testUrl),6000).then(()=>i));
+  try{ bestProxyIdx=await Promise.any(tagged); }
+  catch{ bestProxyIdx=0; }
+}
+
+// Small concurrency limiter — keeps at most `n` requests in flight at once so
+// we don't trip a proxy's per-second rate limit.
+function pLimit(n){
+  let active=0;const queue=[];
+  const run=async(fn,resolve,reject)=>{
+    active++;
+    try{ resolve(await fn()); }catch(e){ reject(e); }
+    active--;
+    if(queue.length){const next=queue.shift();run(...next);}
+  };
+  return fn=>new Promise((resolve,reject)=>{
+    if(active<n)run(fn,resolve,reject);
+    else queue.push([fn,resolve,reject]);
+  });
+}
+const limit=pLimit(4);
+
 async function yf(sym,range,interval){
   const url=`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=${range}&interval=${interval}&includePrePost=false`;
-  try{
-    return await Promise.any(PX.map(p=>fetchOne(p(url),6000)));
-  }catch{return null;}
+  const order=[bestProxyIdx,...PX.map((_,i)=>i).filter(i=>i!==bestProxyIdx)];
+  for(const idx of order){
+    try{ return await limit(()=>fetchOne(PX[idx](url),7000)); }catch{}
+  }
+  return null;
 }
 function iv(p){return{'1mo':'1d','3mo':'1d','6mo':'1wk','1y':'1wk'}[p]||'1d';}
 
@@ -302,7 +333,14 @@ function quadrantAge(history){
 async function loadAll(){
   const btn=document.getElementById('btnRef');
   btn.classList.add('spin');
+  const ldTxt=document.getElementById('ldS');
   const interval=iv(period);
+
+  if(bestProxyIdx===-1){
+    if(ldTxt)ldTxt.textContent='Finding fastest connection...';
+    await detectBestProxy();
+  }
+  if(ldTxt)ldTxt.textContent='Streaming 12 sectors...';
 
   // Fetch benchmark + all 12 sectors at the same time (previously the benchmark
   // was awaited first, then sectors started — doubling the wait).
