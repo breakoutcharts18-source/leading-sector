@@ -208,18 +208,23 @@ let sortBy='change';
 const PX=[
   u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
 ];
+async function fetchOne(url,ms){
+  const r=await fetch(url,{signal:AbortSignal.timeout(ms)});
+  if(!r.ok)throw new Error('bad status');
+  const d=await r.json();
+  const res=d?.chart?.result?.[0];
+  if(!res)throw new Error('no data');
+  return res;
+}
+// Race all proxies at once instead of trying them one-by-one — whichever
+// responds first wins, so a single slow/dead proxy no longer stalls the load.
 async function yf(sym,range,interval){
   const url=`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=${range}&interval=${interval}&includePrePost=false`;
-  for(const p of PX){
-    try{
-      const r=await fetch(p(url),{signal:AbortSignal.timeout(9000)});
-      if(!r.ok)continue;
-      const d=await r.json();
-      if(d?.chart?.result?.[0])return d.chart.result[0];
-    }catch{}
-  }
-  return null;
+  try{
+    return await Promise.any(PX.map(p=>fetchOne(p(url),6000)));
+  }catch{return null;}
 }
 function iv(p){return{'1mo':'1d','3mo':'1d','6mo':'1wk','1y':'1wk'}[p]||'1d';}
 
@@ -299,16 +304,20 @@ async function loadAll(){
   btn.classList.add('spin');
   const interval=iv(period);
 
-  const nHist=await yf(bench,period,interval);
+  // Fetch benchmark + all 12 sectors at the same time (previously the benchmark
+  // was awaited first, then sectors started — doubling the wait).
+  const [nHist,...sectorHists]=await Promise.all([
+    yf(bench,period,interval),
+    ...SECTORS.map(s=>yf(s.t,period,interval))
+  ]);
   let niftyCloses=[];
   if(nHist?.indicators?.quote?.[0]?.close)niftyCloses=nHist.indicators.quote[0].close;
 
-  const results=await Promise.all(SECTORS.map(async s=>{
+  const results=SECTORS.map((s,idx)=>{
     try{
-      const h=await yf(s.t,period,interval);
+      const h=sectorHists[idx];
       if(!h)return null;
       const closes=h.indicators?.quote?.[0]?.close||[];
-      const m=h.meta;
       const first=closes.find(v=>v!=null)||1;
       const last=[...closes].reverse().find(v=>v!=null)||first;
       const change=((last-first)/first)*100;
@@ -317,7 +326,7 @@ async function loadAll(){
       else{rrg.rsRatio=cl(100+change*0.9,80,120);rrg.rsMomentum=cl(100+change*0.5,80,120);}
       return{...s,change,...rrg};
     }catch{return null;}
-  }));
+  });
   sectors=results.filter(Boolean).map(s=>{
     const h=s.history||[];
     const vLen=Math.min(3,h.length);
