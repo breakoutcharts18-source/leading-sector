@@ -50,22 +50,53 @@ select:hover,.pb:hover{border-color:var(--t3);color:var(--t1);}
 #rrgWrap{flex:1;position:relative;min-height:0;}
 #rrgCv{position:absolute;inset:0;width:100%;height:100%;cursor:default;}
 
+/* playback */
+#playWrap{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:7px 16px;border-bottom:1px solid var(--border);background:var(--bg);}
+.play-btn{width:22px;height:22px;border-radius:5px;background:var(--panel);border:1px solid var(--border);color:var(--t1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:9px;transition:.12s;}
+.play-btn:hover{border-color:var(--up);color:var(--up);}
+.play-btn.act{background:var(--up);border-color:var(--up);color:#0b0d12;}
+#playSlider{flex:1;-webkit-appearance:none;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
+#playSlider::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--up);cursor:pointer;}
+#playFrame{font-size:9.5px;font-family:'JetBrains Mono',monospace;color:var(--t3);flex-shrink:0;min-width:74px;text-align:right;}
+.tail-group{display:flex;gap:3px;flex-shrink:0;}
+.tail-btn{padding:2px 7px;background:transparent;border:1px solid var(--border);color:var(--t3);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:8.5px;cursor:pointer;}
+.tail-btn.act{background:var(--impr);border-color:var(--impr);color:#fff;}
+
+/* insight strip */
+#insight{flex-shrink:0;padding:9px 18px;border-bottom:1px solid var(--border);font-size:10.5px;color:var(--t2);line-height:1.6;background:rgba(34,197,94,.02);}
+#insight b{color:var(--t1);}
+#insight .up-txt{color:var(--up);}
+#insight .dn-txt{color:var(--dn);}
+
+/* sort */
+.sort-sel{font-family:'JetBrains Mono',monospace;font-size:9.5px;background:var(--bg);border:1px solid var(--border);color:var(--t2);border-radius:5px;padding:3px 7px;cursor:pointer;}
+
 /* list */
 #list{flex:1;overflow-y:auto;}
-.row{display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid rgba(31,36,46,.6);cursor:default;transition:background .1s;}
+.row{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid rgba(31,36,46,.6);cursor:default;transition:background .1s;}
 .row:hover{background:rgba(255,255,255,.02);}
+.row-rk{width:16px;font-size:9.5px;color:var(--t3);font-family:'JetBrains Mono',monospace;flex-shrink:0;}
 .row-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.row-name{flex:1;font-size:12.5px;font-weight:500;}
+.row-name{flex:1;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:6px;}
 .row-q{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--t3);margin-top:2px;}
 .row-r{text-align:right;flex-shrink:0;}
 .row-c{font-size:12.5px;font-weight:600;font-family:'JetBrains Mono',monospace;}
+.row-metric{font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.flip-badge{font-size:7.5px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:1px 5px;border-radius:3px;letter-spacing:.3px;}
+.flip-in{background:rgba(34,197,94,.15);color:var(--up);}
+.flip-out{background:rgba(239,68,68,.15);color:var(--dn);}
+@keyframes flipPulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.flip-badge{animation:flipPulse 1.6s infinite;}
 
 /* tooltip */
-#tt{position:fixed;background:rgba(11,13,18,.97);border:1px solid var(--border);border-radius:8px;padding:10px 12px;pointer-events:none;opacity:0;transition:opacity .1s;z-index:500;min-width:150px;}
+#tt{position:fixed;background:rgba(11,13,18,.97);border:1px solid var(--border);border-radius:8px;padding:10px 12px;pointer-events:none;opacity:0;transition:opacity .1s;z-index:500;min-width:170px;}
 #tt.show{opacity:1;}
-.tt-nm{font-size:12px;font-weight:600;margin-bottom:6px;}
+.tt-hdr{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.tt-nm{font-size:12px;font-weight:600;}
+.tt-qb{font-size:7px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.3px;margin-left:auto;}
 .tt-row{display:flex;justify-content:space-between;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--t2);margin-top:3px;}
 .tt-row b{color:var(--t1);}
+.tt-flip{font-size:9px;font-family:'JetBrains Mono',monospace;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);}
 
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -112,22 +143,45 @@ select:hover,.pb:hover{border-color:var(--t3);color:var(--t1);}
         <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div>Improving</div>
       </div>
     </div>
+    <div id="playWrap">
+      <div class="play-btn" id="btnPlay" onclick="togglePlay()" title="Play rotation history">▶</div>
+      <div class="play-btn" onclick="stepBack()" title="Step back">◀</div>
+      <div class="play-btn" onclick="stepFwd()" title="Step forward">▶</div>
+      <input type="range" id="playSlider" min="0" max="100" value="100" oninput="onSlider(this.value)">
+      <span id="playFrame">LIVE</span>
+      <div class="tail-group">
+        <button class="tail-btn" onclick="setTail(8,this)">Short</button>
+        <button class="tail-btn act" onclick="setTail(16,this)">Med</button>
+        <button class="tail-btn" onclick="setTail(30,this)">Long</button>
+      </div>
+    </div>
     <div id="rrgWrap"><canvas id="rrgCv"></canvas></div>
   </div>
   <div id="listPanel">
+    <div id="insight">Analyzing rotation…</div>
     <div class="p-hdr">
-      <h2>Ranked by Change</h2>
-      <span class="p-sub" id="lbSub">—</span>
+      <h2>Leaderboard</h2>
+      <select class="sort-sel" id="sortSel" onchange="renderList()">
+        <option value="change">Sort: Change %</option>
+        <option value="score">Sort: Rotation Score</option>
+        <option value="ratio">Sort: RS-Ratio</option>
+        <option value="momentum">Sort: RS-Momentum</option>
+      </select>
     </div>
     <div id="list"></div>
   </div>
 </div>
 
 <div id="tt">
-  <div class="tt-nm" id="ttNm">—</div>
+  <div class="tt-hdr">
+    <div class="tt-nm" id="ttNm">—</div>
+    <div class="tt-qb" id="ttQb">—</div>
+  </div>
   <div class="tt-row"><span>RS-Ratio</span><b id="ttR">—</b></div>
   <div class="tt-row"><span>RS-Momentum</span><b id="ttM">—</b></div>
   <div class="tt-row"><span>Change</span><b id="ttC">—</b></div>
+  <div class="tt-row"><span>Velocity</span><b id="ttV">—</b></div>
+  <div class="tt-flip" id="ttFlip" style="display:none"></div>
 </div>
 
 <script>
@@ -147,6 +201,9 @@ const SECTORS=[
 ];
 let period='1mo', bench='%5ENSEI', benchName='NIFTY 50';
 let sectors=[],hitTargets=[],hovered=-1;
+let TRAIL_LEN=16;
+let rrgHistory=[],playFrameIdx=0,isPlaying=false,playTimer=null;
+let sortBy='change';
 
 const PX=[
   u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
@@ -178,9 +235,21 @@ function st(arr){
 function norm(v,mean,std){return std<1e-6?100:((v-mean)/std)*10+100;}
 function cl(v,a,b){return Math.max(a,Math.min(b,v));}
 
-function computeRRG(sc,nc){
+function quad(rr,rm){
+  if(rr>=100&&rm>=100)return'leading';
+  if(rr>=100&&rm<100)return'weakening';
+  if(rr<100&&rm<100)return'lagging';
+  return'improving';
+}
+const QC={leading:'#22c55e',weakening:'#f59e0b',lagging:'#ef4444',improving:'#3b82f6'};
+const QL={leading:'Leading',weakening:'Weakening',lagging:'Lagging',improving:'Improving'};
+function fc(n,d=2){return n==null||isNaN(n)?'—':n.toFixed(d);}
+
+// Full RS-Ratio + RS-Momentum series (JdK-style), returns entire history so we can
+// scrub through it and measure real velocity / quadrant-transition timing.
+function computeRRGFull(sc,nc){
   const n=Math.min(sc.length,nc.length);
-  if(n<5)return{rsRatio:100,rsMomentum:100,trail:[]};
+  if(n<5)return{rsRatio:100,rsMomentum:100,history:[]};
   const rs=[];
   const s0=sc.find(v=>v!=null)||1, n0=nc.find(v=>v!=null)||1;
   for(let i=0;i<n;i++){
@@ -200,18 +269,30 @@ function computeRRG(sc,nc){
   const{m:mm,s:ms}=st(momSm);
   const momSeries=momSm.map(v=>cl(norm(v,mm,ms),80,120));
   const history=ratioSeries.map((rr,i)=>({rsRatio:rr,rsMomentum:momSeries[i]||100}));
-  const trail=history.slice(-6);
-  return{rsRatio:ratioSeries[ratioSeries.length-1],rsMomentum:momSeries[momSeries.length-1],trail};
+  return{rsRatio:ratioSeries[ratioSeries.length-1],rsMomentum:momSeries[momSeries.length-1],history};
 }
-function quad(rr,rm){
-  if(rr>=100&&rm>=100)return'leading';
-  if(rr>=100&&rm<100)return'weakening';
-  if(rr<100&&rm<100)return'lagging';
-  return'improving';
+
+// Rotation Score: distance from the neutral (100,100) center, signed by which
+// side of the wheel it's on. This ranks sectors by rotation strength — a sector
+// can be up 3% on price but weak on this score if it's drifting toward Lagging.
+function rotationScore(rr,rm){
+  const dr=rr-100, dm=rm-100;
+  const dist=Math.hypot(dr,dm);
+  const sign=(quad(rr,rm)==='leading')?1:(quad(rr,rm)==='lagging')?-1:(quad(rr,rm)==='improving'?0.5:-0.5);
+  return dist*sign;
 }
-const QC={leading:'#22c55e',weakening:'#f59e0b',lagging:'#ef4444',improving:'#3b82f6'};
-const QL={leading:'Leading',weakening:'Weakening',lagging:'Lagging',improving:'Improving'};
-function fc(n,d=2){return n==null||isNaN(n)?'—':n.toFixed(d);}
+
+// How many bars ago did this sector enter its current quadrant? Used to flag
+// fresh rotations (the actual tradeable signal) vs. sectors that have been
+// sitting in the same quadrant for weeks.
+function quadrantAge(history){
+  if(!history||history.length<2)return 99;
+  const cur=quad(history[history.length-1].rsRatio,history[history.length-1].rsMomentum);
+  for(let i=history.length-2;i>=0;i--){
+    if(quad(history[i].rsRatio,history[i].rsMomentum)!==cur)return history.length-1-i;
+  }
+  return history.length-1;
+}
 
 async function loadAll(){
   const btn=document.getElementById('btnRef');
@@ -231,14 +312,20 @@ async function loadAll(){
       const first=closes.find(v=>v!=null)||1;
       const last=[...closes].reverse().find(v=>v!=null)||first;
       const change=((last-first)/first)*100;
-      let rrg={rsRatio:100,rsMomentum:100,trail:[]};
-      if(niftyCloses.length>5&&closes.length>5)rrg=computeRRG(closes,niftyCloses);
+      let rrg={rsRatio:100,rsMomentum:100,history:[]};
+      if(niftyCloses.length>5&&closes.length>5)rrg=computeRRGFull(closes,niftyCloses);
       else{rrg.rsRatio=cl(100+change*0.9,80,120);rrg.rsMomentum=cl(100+change*0.5,80,120);}
       return{...s,change,...rrg};
     }catch{return null;}
   }));
-  sectors=results.filter(Boolean);
+  sectors=results.filter(Boolean).map(s=>{
+    const h=s.history||[];
+    const vLen=Math.min(3,h.length);
+    const velocity=vLen>1?(h[h.length-1].rsRatio-h[h.length-vLen].rsRatio)/vLen:0;
+    return{...s,trail:h.slice(-TRAIL_LEN-1),velocity,qAge:quadrantAge(h),score:rotationScore(s.rsRatio,s.rsMomentum)};
+  });
 
+  buildPlaybackHistory();
   renderList();
   document.getElementById('updT').textContent='Updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   document.getElementById('lbSub').textContent=sectors.length+' sectors';
@@ -247,21 +334,102 @@ async function loadAll(){
   setTimeout(()=>document.getElementById('loading').style.display='none',400);
 }
 
+function buildPlaybackHistory(){
+  const withHist=sectors.filter(s=>s.history&&s.history.length>1);
+  const minLen=withHist.length?Math.min(...withHist.map(s=>s.history.length)):0;
+  if(minLen<2){rrgHistory=[];updatePlayLabel();return;}
+  rrgHistory=[];
+  for(let f=0;f<minLen;f++){
+    rrgHistory.push(sectors.map(s=>{
+      const h=s.history||[];
+      const pt=h[f]||{rsRatio:s.rsRatio,rsMomentum:s.rsMomentum};
+      const trail=h.slice(Math.max(0,f-TRAIL_LEN),f+1);
+      return{...s,rsRatio:pt.rsRatio,rsMomentum:pt.rsMomentum,trail};
+    }));
+  }
+  document.getElementById('playSlider').max=rrgHistory.length-1;
+  document.getElementById('playSlider').value=rrgHistory.length-1;
+  playFrameIdx=rrgHistory.length-1;
+  updatePlayLabel();
+}
+function getCurrentSectors(){
+  if(!rrgHistory.length||playFrameIdx>=rrgHistory.length-1)return sectors;
+  return rrgHistory[Math.min(playFrameIdx,rrgHistory.length-1)];
+}
+function togglePlay(){
+  isPlaying=!isPlaying;
+  const btn=document.getElementById('btnPlay');
+  btn.textContent=isPlaying?'⏸':'▶';
+  btn.classList.toggle('act',isPlaying);
+  if(isPlaying){
+    if(playFrameIdx>=rrgHistory.length-1)playFrameIdx=0;
+    runPlay();
+  }else clearTimeout(playTimer);
+}
+function runPlay(){
+  if(!isPlaying)return;
+  playFrameIdx=Math.min(playFrameIdx+1,rrgHistory.length-1);
+  document.getElementById('playSlider').value=playFrameIdx;
+  updatePlayLabel();
+  if(playFrameIdx>=rrgHistory.length-1){
+    isPlaying=false;
+    document.getElementById('btnPlay').textContent='▶';
+    document.getElementById('btnPlay').classList.remove('act');
+    return;
+  }
+  playTimer=setTimeout(runPlay,140);
+}
+function stepBack(){playFrameIdx=Math.max(0,playFrameIdx-1);document.getElementById('playSlider').value=playFrameIdx;updatePlayLabel();}
+function stepFwd(){if(!rrgHistory.length)return;playFrameIdx=Math.min(rrgHistory.length-1,playFrameIdx+1);document.getElementById('playSlider').value=playFrameIdx;updatePlayLabel();}
+function onSlider(v){playFrameIdx=parseInt(v);updatePlayLabel();}
+function updatePlayLabel(){
+  const el=document.getElementById('playFrame');
+  if(!rrgHistory.length||playFrameIdx>=rrgHistory.length-1){el.textContent='LIVE';return;}
+  el.textContent='T-'+(rrgHistory.length-1-playFrameIdx)+' bars';
+}
+function setTail(n,btn){
+  TRAIL_LEN=n;
+  document.querySelectorAll('.tail-btn').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  sectors=sectors.map(s=>({...s,trail:(s.history||[]).slice(-TRAIL_LEN-1)}));
+  buildPlaybackHistory();
+}
+
 function renderList(){
-  const sorted=[...sectors].sort((a,b)=>b.change-a.change);
-  document.getElementById('list').innerHTML=sorted.map(s=>{
+  sortBy=document.getElementById('sortSel')?.value||sortBy;
+  const key={change:'change',score:'score',ratio:'rsRatio',momentum:'rsMomentum'}[sortBy]||'change';
+  const sorted=[...sectors].sort((a,b)=>b[key]-a[key]);
+  document.getElementById('list').innerHTML=sorted.map((s,i)=>{
     const q=quad(s.rsRatio,s.rsMomentum);
+    const justFlipped=s.qAge<=2;
+    const flippedIn=(q==='leading'||q==='improving');
     return`<div class="row">
+      <div class="row-rk">${i+1}</div>
       <div class="row-dot" style="background:${s.color}"></div>
-      <div>
-        <div class="row-name">${s.name}</div>
-        <div class="row-q" style="color:${QC[q]}">${QL[q]}</div>
+      <div style="flex:1">
+        <div class="row-name">${s.name}${justFlipped?`<span class="flip-badge ${flippedIn?'flip-in':'flip-out'}">→ ${QL[q].toUpperCase()}</span>`:''}</div>
+        <div class="row-q" style="color:${QC[q]}">${QL[q]}<span class="row-metric"> · RR ${fc(s.rsRatio,1)} · RM ${fc(s.rsMomentum,1)} · Score ${fc(s.score,2)}</span></div>
       </div>
       <div class="row-r">
         <div class="row-c" style="color:${s.change>=0?'var(--up)':'var(--dn)'}">${s.change>=0?'+':''}${fc(s.change)}%</div>
       </div>
     </div>`;
   }).join('');
+  renderInsight(sorted);
+}
+
+function renderInsight(sorted){
+  if(!sorted.length)return;
+  const leaders=sectors.filter(s=>quad(s.rsRatio,s.rsMomentum)==='leading').sort((a,b)=>b.score-a.score);
+  const lagging=sectors.filter(s=>quad(s.rsRatio,s.rsMomentum)==='lagging').sort((a,b)=>a.score-b.score);
+  const freshIn=sectors.filter(s=>s.qAge<=2&&(quad(s.rsRatio,s.rsMomentum)==='leading'||quad(s.rsRatio,s.rsMomentum)==='improving'));
+  const freshOut=sectors.filter(s=>s.qAge<=2&&(quad(s.rsRatio,s.rsMomentum)==='lagging'||quad(s.rsRatio,s.rsMomentum)==='weakening'));
+  let txt='';
+  if(leaders.length)txt+=`Strongest: <b class="up-txt">${leaders.slice(0,3).map(s=>s.name).join(', ')}</b>. `;
+  if(lagging.length)txt+=`Weakest: <b class="dn-txt">${lagging.slice(0,3).map(s=>s.name).join(', ')}</b>. `;
+  if(freshIn.length)txt+=`Just turned up: <b>${freshIn.map(s=>s.name).join(', ')}</b>. `;
+  if(freshOut.length)txt+=`Just turned down: <b>${freshOut.map(s=>s.name).join(', ')}</b>.`;
+  document.getElementById('insight').innerHTML=txt||'No clear rotation signal yet.';
 }
 
 const rrgCv=document.getElementById('rrgCv');
@@ -304,18 +472,45 @@ function drawRRG(){
   rctx.save();rctx.translate(12,rPAD.t+rcH/2);rctx.rotate(-Math.PI/2);rctx.fillText('RS-Momentum',0,0);rctx.restore();
 
   hitTargets=[];
-  sectors.forEach((s,i)=>{
+  const cur=getCurrentSectors();
+  cur.forEach((s,i)=>{
     const x=rx(s.rsRatio),y=ry(s.rsMomentum);
     const col=QC[quad(s.rsRatio,s.rsMomentum)];
     const isH=hovered===i;
 
+    // Fading trail: oldest = faint, newest = solid, with a small arrowhead
+    // showing the direction of travel — this is what actually shows a sector
+    // "rotating" rather than just sitting at a point.
     if(s.trail&&s.trail.length>1){
-      rctx.beginPath();
-      s.trail.forEach((p,j)=>{
-        const px=rx(p.rsRatio),py=ry(p.rsMomentum);
-        j===0?rctx.moveTo(px,py):rctx.lineTo(px,py);
-      });
-      rctx.strokeStyle=col+'55';rctx.lineWidth=1.3;rctx.stroke();
+      const tl=s.trail.length;
+      for(let t=1;t<tl;t++){
+        const a=s.trail[t-1],b=s.trail[t];
+        const alpha=t/tl;
+        const hex=Math.round(alpha*160).toString(16).padStart(2,'0');
+        rctx.beginPath();
+        rctx.moveTo(rx(a.rsRatio),ry(a.rsMomentum));
+        rctx.lineTo(rx(b.rsRatio),ry(b.rsMomentum));
+        rctx.strokeStyle=col+hex;
+        rctx.lineWidth=0.8+alpha*1.4;
+        rctx.stroke();
+      }
+      const last=s.trail[tl-1],prev=s.trail[Math.max(0,tl-3)];
+      const dRR=rx(last.rsRatio)-rx(prev.rsRatio), dRM=ry(last.rsMomentum)-ry(prev.rsMomentum);
+      if(Math.hypot(dRR,dRM)>3){
+        const ang=Math.atan2(dRM,dRR);
+        rctx.save();rctx.translate(rx(last.rsRatio),ry(last.rsMomentum));rctx.rotate(ang);
+        rctx.beginPath();rctx.moveTo(0,0);rctx.lineTo(-6,-2.3);rctx.lineTo(-6,2.3);
+        rctx.closePath();rctx.fillStyle=col+'dd';rctx.fill();rctx.restore();
+      }
+    }
+
+    // Flip pulse — a soft ring around sectors that changed quadrant recently
+    if(s.qAge<=2){
+      const t=(Date.now()/500)%2;
+      const p=t<1?t:2-t;
+      rctx.beginPath();rctx.arc(x,y,10+p*4,0,Math.PI*2);
+      rctx.strokeStyle=col+Math.round((1-p)*130).toString(16).padStart(2,'0');
+      rctx.lineWidth=1.5;rctx.stroke();
     }
 
     const r=isH?9:6.5;
@@ -329,6 +524,13 @@ function drawRRG(){
 
     hitTargets.push({x,y,r:11,i});
   });
+
+  // Playback progress bar under the chart
+  if(rrgHistory.length&&playFrameIdx<rrgHistory.length-1){
+    const pct=playFrameIdx/(rrgHistory.length-1);
+    rctx.fillStyle='#22c55e33';
+    rctx.fillRect(rPAD.l,rPAD.t+rcH+4,rcW*pct,2);
+  }
 }
 
 rrgCv.addEventListener('mousemove',e=>{
@@ -336,18 +538,29 @@ rrgCv.addEventListener('mousemove',e=>{
   const mx=e.clientX-rect.left,my=e.clientY-rect.top;
   let found=-1;
   hitTargets.forEach(t=>{if(Math.hypot(mx-t.x,my-t.y)<=t.r)found=t.i;});
-  hovered=found;drawRRG();
+  hovered=found;
   const tt=document.getElementById('tt');
   if(found>=0){
-    const s=sectors[found];
+    const cur=getCurrentSectors();
+    const s=cur[found];
+    const full=sectors[found];
+    const q=quad(s.rsRatio,s.rsMomentum);
     document.getElementById('ttNm').textContent=s.name;
+    const qb=document.getElementById('ttQb');
+    qb.textContent=QL[q];qb.style.background=QC[q]+'22';qb.style.color=QC[q];
     document.getElementById('ttR').textContent=fc(s.rsRatio);
     document.getElementById('ttM').textContent=fc(s.rsMomentum);
     const cEl=document.getElementById('ttC');
     cEl.textContent=(s.change>=0?'+':'')+fc(s.change)+'%';
     cEl.style.color=s.change>=0?'var(--up)':'var(--dn)';
-    tt.style.left=Math.min(e.clientX+16,window.innerWidth-180)+'px';
-    tt.style.top=Math.min(e.clientY+16,window.innerHeight-110)+'px';
+    const vEl=document.getElementById('ttV');
+    const vel=full.velocity||0;
+    vEl.textContent=(vel>=0?'+':'')+fc(vel,3)+(vel>0.2?' ↗ accelerating':vel<-0.2?' ↘ decelerating':' → stable');
+    const flipEl=document.getElementById('ttFlip');
+    if(full.qAge<=2){flipEl.style.display='block';flipEl.style.color=QC[q];flipEl.textContent='Entered '+QL[q]+' '+full.qAge+' bar(s) ago';}
+    else flipEl.style.display='none';
+    tt.style.left=Math.min(e.clientX+16,window.innerWidth-200)+'px';
+    tt.style.top=Math.min(e.clientY+16,window.innerHeight-150)+'px';
     tt.classList.add('show');
   }else tt.classList.remove('show');
 });
@@ -364,9 +577,12 @@ function setBench(v){
 
 let resT;
 window.addEventListener('resize',()=>{clearTimeout(resT);resT=setTimeout(()=>{rResize();drawRRG();},120);});
+
+function rafLoop(){drawRRG();requestAnimationFrame(rafLoop);}
+
 window.addEventListener('DOMContentLoaded',()=>{
   rResize();loadAll();
-  setInterval(()=>{drawRRG();},600);
+  rafLoop();
   setInterval(loadAll,5*60*1000);
 });
 </script>
