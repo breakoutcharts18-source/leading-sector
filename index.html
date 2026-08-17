@@ -310,12 +310,19 @@ function computeRRGFull(sc,nc){
     return 100;
   });
   const sm=ema(rc,10);
-  const{m:smm,s:sms}=st(sm);
-  const ratioSeries=sm.map(v=>cl(norm(v,smm,sms),80,120));
+  // NOTE: previously this z-scored `sm` against its OWN mean/std (computed
+  // from the same short window it was measuring). With only ~20-40 bars and
+  // heavy smoothing, that self-referential std collapses, which either
+  // clusters every sector near 100 or pins them at the +/-20 clip — the
+  // "flat" values you were seeing. Instead we use the smoothed relative-
+  // strength ratio directly (it's already centered at 100 = "matches
+  // benchmark"), scaled so real divergence is visible on the 80-120 plot.
+  const RATIO_SCALE=3.2;
+  const ratioSeries=sm.map(v=>cl(100+(v-100)*RATIO_SCALE,80,120));
   const deltas=ratioSeries.map((v,i)=>i===0?0:v-ratioSeries[i-1]);
   const momSm=ema(deltas,5);
-  const{m:mm,s:ms}=st(momSm);
-  const momSeries=momSm.map(v=>cl(norm(v,mm,ms),80,120));
+  const MOM_SCALE=9;
+  const momSeries=momSm.map(v=>cl(100+v*MOM_SCALE,80,120));
   const history=ratioSeries.map((rr,i)=>({rsRatio:rr,rsMomentum:momSeries[i]||100}));
   return{rsRatio:ratioSeries[ratioSeries.length-1],rsMomentum:momSeries[momSeries.length-1],history};
 }
@@ -394,6 +401,7 @@ async function loadAll(){
           ...sectors[idx],...s,change,...rrg,loading:false,
           trail:hist.slice(-TRAIL_LEN-1),velocity,
           qAge:quadrantAge(hist),score:rotationScore(rrg.rsRatio,rrg.rsMomentum),
+          pts:closes.filter(v=>v!=null).length,
           justArrived:true
         };
         setTimeout(()=>{if(sectors[idx])sectors[idx].justArrived=false;},700);
@@ -520,7 +528,7 @@ function renderList(){
       <div class="row-dot" style="background:${s.color}"></div>
       <div style="flex:1">
         <div class="row-name">${s.name}${justFlipped?`<span class="flip-badge ${flippedIn?'flip-in':'flip-out'}">→ ${QL[q].toUpperCase()}</span>`:''}</div>
-        <div class="row-q" style="color:${QC[q]}">${QL[q]}<span class="row-metric"> · RR ${fc(s.rsRatio,1)} · RM ${fc(s.rsMomentum,1)} · Score ${fc(s.score,2)}</span></div>
+        <div class="row-q" style="color:${QC[q]}">${QL[q]}<span class="row-metric"> · RR ${fc(s.rsRatio,1)} · RM ${fc(s.rsMomentum,1)} · Score ${fc(s.score,2)} · ${s.pts||0}pts</span></div>
       </div>
       <div class="row-r">
         <div class="row-c" style="color:${s.change>=0?'var(--up)':'var(--dn)'}">${s.change>=0?'+':''}${fc(s.change)}%</div>
