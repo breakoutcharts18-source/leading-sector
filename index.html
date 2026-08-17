@@ -207,7 +207,7 @@ const SECTORS=[
   {name:'Energy',    t:'%5ECNXENERGY', color:'#facc15'},
   {name:'Infra',     t:'%5ECNXINFRA',  color:'#22d3ee'},
   {name:'Media',     t:'%5ECNXMEDIA',  color:'#c084fc'},
-  {name:'Fin Serv.', t:'%5EFINSERVICE',color:'#34d399'},
+  {name:'Fin Serv.', t:'%5ECNXFIN',    color:'#34d399'},
   {name:'Cons Dur.', t:'%5ECNXCONSUM', color:'#f87171'},
 ];
 const PX=[
@@ -310,13 +310,13 @@ function computeRRGFull(sc,nc){
     return 100;
   });
   const sm=ema(rc,10);
-  // NOTE: previously this z-scored `sm` against its OWN mean/std (computed
-  // from the same short window it was measuring). With only ~20-40 bars and
-  // heavy smoothing, that self-referential std collapses, which either
-  // clusters every sector near 100 or pins them at the +/-20 clip — the
-  // "flat" values you were seeing. Instead we use the smoothed relative-
-  // strength ratio directly (it's already centered at 100 = "matches
-  // benchmark"), scaled so real divergence is visible on the 80-120 plot.
+  // Previously this z-scored `sm` against its OWN mean/std, computed from
+  // the same short window it was measuring. With only ~20-40 bars and heavy
+  // smoothing, that self-referential std collapses, which either clusters
+  // every sector near 100 or pins them at the +/-20 clip — the "flat"
+  // values. Instead use the smoothed relative-strength ratio directly
+  // (already centered at 100 = "matches benchmark"), scaled so real
+  // divergence is visible on the 80-120 plot.
   const RATIO_SCALE=3.2;
   const ratioSeries=sm.map(v=>cl(100+(v-100)*RATIO_SCALE,80,120));
   const deltas=ratioSeries.map((v,i)=>i===0?0:v-ratioSeries[i-1]);
